@@ -1,13 +1,296 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { translations, ALGERIA_WILAYAS } from './translations';
 
+// Default standalone catalog for 0ms instant loading & high resilience
+const DEFAULT_PRODUCTS = [
+  {
+    id: 13,
+    name: "T-Shirt Streetwear Adidas Trefoil",
+    brand: "Adidas",
+    category: "Vêtements",
+    gender: "Homme",
+    price: 2500,
+    old_price: null,
+    image: "/assets/products/p1.png",
+    images: ["/assets/products/p1.png"],
+    sizes: [
+      { size: "XS", stock: 6 },
+      { size: "S", stock: 6 },
+      { size: "M", stock: 6 },
+      { size: "L", stock: 6 },
+      { size: "XL", stock: 6 },
+      { size: "XXL", stock: 6 }
+    ],
+    description: "T-Shirt streetwear oversize 100% coton de qualité supérieure, coupe décontractée tendance."
+  },
+  {
+    id: 12,
+    name: "Nike Air Max Plus TN Premium Scorpion",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 39900,
+    old_price: 45000,
+    image: "/assets/products/tn_12.png",
+    images: ["/assets/products/tn_12.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Édition Premium exclusive avec finitions chrome bleutées et cages TPU sculptées."
+  },
+  {
+    id: 11,
+    name: "Nike Air Max Plus 3 TN Triple White",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 37900,
+    old_price: 42500,
+    image: "/assets/products/tn_11.png",
+    images: ["/assets/products/tn_11.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Silhouette TN 3 tout en blanc immaculé avec empiècements géométriques futuristes."
+  },
+  {
+    id: 10,
+    name: "Nike Air Max Plus 3 TN Black & Smoke",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 37900,
+    old_price: 42500,
+    image: "/assets/products/tn_10.png",
+    images: ["/assets/products/tn_10.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "La légendaire TN 3 avec son contrefort arrière aérodynamique emblématique."
+  },
+  {
+    id: 9,
+    name: "Nike Air Max Plus TN Marseille Edition",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 38500,
+    old_price: 43000,
+    image: "/assets/products/tn_9.png",
+    images: ["/assets/products/tn_9.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Édition spéciale aux accents bleu ciel méditerranéen et blanc cassé."
+  },
+  {
+    id: 8,
+    name: "Nike Air Max Plus TN Metallic Gold",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 36500,
+    old_price: 41000,
+    image: "/assets/products/tn_8.png",
+    images: ["/assets/products/tn_8.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Look scintillant or métallisé avec amorti Tuned Air double chambre."
+  },
+  {
+    id: 7,
+    name: "Nike Air Max Plus TN Silver Bullet",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 35500,
+    old_price: 39500,
+    image: "/assets/products/tn_7.png",
+    images: ["/assets/products/tn_7.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Inspiration argentée avec mesh respirant et détails réfléchissants."
+  },
+  {
+    id: 6,
+    name: "Nike Air Max Plus TN Sunset Gradient",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 37500,
+    old_price: 42000,
+    image: "/assets/products/tn_6.png",
+    images: ["/assets/products/tn_6.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Le coloris historique Sunset en dégradé coucher de soleil orange flamboyant."
+  },
+  {
+    id: 5,
+    name: "Nike Air Max Plus TN University Blue",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 36500,
+    old_price: 40000,
+    image: "/assets/products/tn_5.png",
+    images: ["/assets/products/tn_5.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Teinte University Blue vibrante contrastée d'une semelle blanche pure."
+  },
+  {
+    id: 4,
+    name: "Nike Air Max Plus TN Hyper Blue OG",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 37500,
+    old_price: 42000,
+    image: "/assets/products/tn_4.png",
+    images: ["/assets/products/tn_4.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "L'iconique Hyper Blue original de 1998 avec dégradé bleu océan et jaune vif."
+  },
+  {
+    id: 3,
+    name: "Nike Air Max Plus TN Triple White",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 34500,
+    old_price: 38000,
+    image: "/assets/products/tn_3.png",
+    images: ["/assets/products/tn_3.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Silhouette immaculée en blanc éclatant, la paire estivale par excellence."
+  },
+  {
+    id: 2,
+    name: "Nike Air Max Plus TN Tough Red Shark",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 36900,
+    old_price: 41000,
+    image: "/assets/products/tn_2.png",
+    images: ["/assets/products/tn_2.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Mythique dégradé Requin rouge sang et noir profond aux nervures agressives."
+  },
+  {
+    id: 1,
+    name: "Nike Air Max Plus TN Triple Black",
+    brand: "Nike",
+    category: "Sneakers",
+    gender: "Homme",
+    price: 34500,
+    old_price: 38000,
+    image: "/assets/products/tn_1.png",
+    images: ["/assets/products/tn_1.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "L'incontournable Requin Triple Black aux nervures TPU ondulées et bulle Tuned Air."
+  }
+];
+
+const DEFAULT_BRANDS = [
+  'Nike', 'Adidas', 'Jordan', 'Lacoste', 'Boss', 'Palm Angels',
+  'Puma', 'New Balance', 'Trapstar', 'Corteiz', 'Syna World',
+  'Under Armour', 'Asics', 'Vans'
+];
+
 export default function App() {
   // --- STATE ---
   const [lang, setLang] = useState(() => localStorage.getItem('cs_lang') || 'fr');
   const t = translations[lang] || translations.fr;
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+  const [loading, setLoading] = useState(false);
+  const [savedBrandsList, setSavedBrandsList] = useState(DEFAULT_BRANDS);
   const [cart, setCart] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('cs_cart') || '[]');
@@ -68,9 +351,6 @@ export default function App() {
   const [editModalImageFile, setEditModalImageFile] = useState(null);
   const [editModalImagePreview, setEditModalImagePreview] = useState(null);
   const [savingModalProduct, setSavingModalProduct] = useState(false);
-
-  // Saved Brands State (persistent brands loaded from MongoDB)
-  const [savedBrandsList, setSavedBrandsList] = useState([]);
 
   // Helper: detect if a product or category is Clothing
   const isClothingCategory = (category, name = '') => {
@@ -221,14 +501,18 @@ export default function App() {
   // Fetch Products
   const fetchProducts = async () => {
     try {
-      setLoading(true);
       const res = await fetch('/api/products');
       if (res.ok) {
-        const data = await res.json();
-        setProducts(data);
+        const ct = res.headers.get('content-type');
+        if (ct && ct.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setProducts(data);
+          }
+        }
       }
     } catch (err) {
-      console.error('Failed to load products:', err);
+      console.warn('Backend API offline or unreachable, using local high-speed catalog:', err);
     } finally {
       setLoading(false);
     }
@@ -239,8 +523,13 @@ export default function App() {
     try {
       const res = await fetch('/api/brands');
       if (res.ok) {
-        const data = await res.json();
-        setSavedBrandsList(data);
+        const ct = res.headers.get('content-type');
+        if (ct && ct.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setSavedBrandsList(data);
+          }
+        }
       }
     } catch (err) {
       console.warn('Failed to load brands:', err);

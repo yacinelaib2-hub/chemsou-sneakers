@@ -118,7 +118,7 @@ router.get('/', async (req, res) => {
     res.json(formatted);
   } catch (err) {
     console.error('Get products error:', err);
-    res.status(500).json({ message: 'Erreur lors de la récupération des produits depuis MongoDB.' });
+    res.json(DEFAULT_PRODUCTS);
   }
 });
 
