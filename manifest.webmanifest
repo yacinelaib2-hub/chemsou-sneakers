@@ -1,0 +1,33 @@
+{
+  "id": "./",
+  "name": "Chemsou Sneakers",
+  "short_name": "Chemsou",
+  "description": "Baskets, ensembles et streetwear. Commandez vos articles Chemsou Sneakers en ligne.",
+  "lang": "fr-DZ",
+  "start_url": "./index.php",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "assets/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/chemsou-logo.png?v=__ICON_VERSION__",
+      "sizes": "1200x360",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
