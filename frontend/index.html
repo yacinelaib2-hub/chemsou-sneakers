@@ -2,16 +2,35 @@
 <html lang="fr" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <meta name="theme-color" content="#0a0a0a" />
-    <meta name="description" content="Chemsou Sneakers & Streetwear — Boutique de baskets et streetwear en Algérie. Livraison 69 Wilayas." />
+    <meta name="description" content="Chemsou Sneakers & Streetwear — Boutique de baskets et streetwear en Algérie. Livraison 69 Wilayas avec paiement à la livraison." />
+    
+    <!-- PWA & Mobile Web App Capabilities -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Chemsou Sneakers" />
+    
     <title>Chemsou Sneakers | Baskets & Streetwear Algérie</title>
-    <link rel="icon" type="image/png" href="/assets/chemsou-logo.png" />
+    <link rel="icon" type="image/png" href="/assets/app-icon-192.png" />
     <link rel="apple-touch-icon" href="/assets/app-icon-192.png" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Register PWA Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then((reg) => {
+            console.log('✓ Chemsou PWA Service Worker actif (scope: ' + reg.scope + ')');
+          }).catch((err) => {
+            console.warn('PWA registration error:', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>
-

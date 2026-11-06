@@ -16,6 +16,9 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 body {
@@ -25,6 +28,15 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 button, a {
@@ -40,6 +52,206 @@ button {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+/* PWA INSTALL BANNER */
+.pwa-install-banner {
+  background: linear-gradient(90deg, #0e0e0e 0%, #1c1c1e 100%);
+  color: #ffffff;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  animation: bannerSlideDown 0.3s ease-out;
+}
+
+@keyframes bannerSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pwa-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pwa-banner-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.pwa-banner-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pwa-banner-info strong {
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.pwa-banner-info p {
+  font-size: 11px;
+  color: #bbbbbb;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pwa-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pwa-install-action-btn {
+  background: var(--red);
+  color: #ffffff;
+  border: none;
+  padding: 7px 15px;
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+  box-shadow: 0 2px 10px rgba(228, 0, 43, 0.45);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pwa-install-action-btn:hover {
+  background: #ff1a40;
+  transform: scale(1.03);
+}
+
+.pwa-dismiss-btn {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.pwa-dismiss-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Header Quick Install Pill */
+.pwa-quick-btn {
+  background: #e4002b !important;
+  color: #ffffff !important;
+  padding: 5px 11px !important;
+  border-radius: 20px !important;
+  font-weight: 900 !important;
+  font-size: 11px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(228,0,43,0.35) !important;
+}
+
+/* iOS PWA Install Guide Modal */
+.ios-install-modal-box {
+  background: #ffffff;
+  padding: 26px 20px;
+  border-radius: 16px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+  position: relative;
+  margin: auto;
+}
+
+.ios-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ios-steps-list li {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #333333;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.ios-steps-list li span {
+  font-weight: 900;
+  color: var(--red);
+  font-size: 14px;
+}
+
+/* BRAND LOGO TYPOGRAPHY BADGE */
+.logo-brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-brand-badge {
+  background: #000000;
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.logo-brand-name {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.logo-brand-sub {
+  font-size: 9px;
+  font-weight: 800;
+  color: #cccccc;
+  letter-spacing: 1.5px;
+  margin-top: 2px;
+}
+
+.logo-brand-dot {
+  color: var(--red);
+  font-weight: 900;
 }
 
 /* TOPBAR */
@@ -1999,35 +2211,73 @@ html[dir="rtl"] .header-search input {
   display: none;
 }
 
+.btn-app-install {
+  background: var(--red) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border: 1px solid var(--red) !important;
+  box-shadow: 0 4px 14px rgba(228, 0, 43, 0.35) !important;
+}
+
+.hero-buttons-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 @media (max-width: 900px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px 14px;
+    gap: 16px 12px;
   }
   .hero {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100vw;
     min-height: auto;
+    background: #eeeeee;
+    padding: 0;
+    box-sizing: border-box;
   }
   .hero-shape {
+    width: 100%;
     height: auto;
-    padding: 20px 6% 40px;
+    padding: 10px 16px 36px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
   }
   .hero-content {
-    padding: 50px 6% 20px;
+    width: 100%;
+    padding: 38px 18px 20px;
     text-align: center;
     align-items: center;
+    box-sizing: border-box;
   }
   .hero h1 {
-    font-size: clamp(38px, 9vw, 56px);
+    font-size: clamp(34px, 8.5vw, 52px);
     letter-spacing: -2px;
+    line-height: 0.95;
+    margin-bottom: 14px;
   }
   .hero-text {
-    margin: 0 auto 24px;
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 90%;
+    margin: 0 auto 20px;
+  }
+  .hero-buttons-row {
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
   }
   .hero-sneaker-showcase {
     transform: rotate(0deg);
-    width: min(340px, 100%);
+    width: min(340px, 92vw);
     margin: 0 auto;
+    box-sizing: border-box;
   }
   .promo h2 {
     font-size: 44px;
@@ -2040,6 +2290,10 @@ html[dir="rtl"] .header-search input {
 @media (max-width: 700px) {
   body {
     padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .desktop-only-tool {
+    display: none !important;
   }
 
   .topbar {
@@ -2055,39 +2309,52 @@ html[dir="rtl"] .header-search input {
   }
 
   .header {
-    padding: 0 12px;
+    padding: 0 14px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
   .header-main {
-    grid-template-columns: auto 1fr auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0 6px;
     gap: 8px;
-    padding: 8px 0;
     min-height: auto;
+    width: 100%;
   }
   .brand-mark {
-    width: 135px;
-    height: 42px;
+    width: 130px;
+    height: 38px;
   }
   .header-search {
-    grid-column: 1 / -1;
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
     order: 3;
-    height: 44px;
-    margin-top: 4px;
+    height: 42px;
+    margin-top: 2px;
   }
   .header-tools {
+    display: flex;
+    align-items: center;
     gap: 6px;
+    margin-left: auto;
   }
   .header-tool {
-    height: 36px;
+    height: 34px;
     padding: 0 8px;
     font-size: 11px;
+  }
+  .header-tool.cart-button .cart-text {
+    display: none !important;
   }
   .header-tool span {
     font-size: 11px;
   }
 
   .store-nav {
-    min-height: 44px;
+    min-height: 42px;
     justify-content: flex-start;
     padding: 0 10px;
     gap: 16px;
@@ -2095,14 +2362,98 @@ html[dir="rtl"] .header-search input {
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
   .store-nav::-webkit-scrollbar {
     display: none;
   }
   .store-nav a, .store-nav button {
-    height: 44px;
+    height: 42px;
     font-size: 11px;
     flex-shrink: 0;
+  }
+
+  .brand-strip {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
+    padding: 10px 14px !important;
+    gap: 8px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    min-height: auto !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+  .brand-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .brand-chip {
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .shop-layout {
+    grid-template-columns: 1fr;
+  }
+  .filters {
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0 0 18px;
+    margin-bottom: 20px;
+  }
+
+  .mobile-bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid #e5e5ea;
+    z-index: 1000;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 2px calc(env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  }
+  .mobile-bottom-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    font-size: 10px;
+    font-weight: 700;
+    color: #555555;
+    flex: 1;
+    height: 100%;
+    padding: 4px 0;
+    transition: color 0.15s ease;
+    cursor: pointer;
+  }
+  .mobile-bottom-tab .tab-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .mobile-bottom-tab.active {
+    color: var(--red);
+  }
+  .mobile-bottom-tab.install-tab {
+    color: var(--red);
+    font-weight: 900;
   }
 
   .shop-layout {

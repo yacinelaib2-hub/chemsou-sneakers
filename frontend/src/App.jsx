@@ -316,6 +316,12 @@ export default function App() {
   });
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('cs_token') || null);
 
+  // PWA & Mobile Installation State
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
+  const [showInstallBanner, setShowInstallBanner] = useState(true);
+  const [showIOSInstallGuide, setShowIOSInstallGuide] = useState(false);
+
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -540,6 +546,58 @@ export default function App() {
     fetchProducts();
     fetchBrands();
   }, []);
+
+  // PWA beforeinstallprompt & installation listener
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsAppInstalled(true);
+      setShowInstallBanner(false);
+      return;
+    }
+
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      if (!sessionStorage.getItem('cs_dismiss_install')) {
+        setShowInstallBanner(true);
+      }
+    };
+
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setShowInstallBanner(false);
+      setDeferredPrompt(null);
+      showToast('🎉 Application Chemsou Sneakers installée avec succès !');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const triggerInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        setShowInstallBanner(false);
+        setDeferredPrompt(null);
+      }
+    } else {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        setShowIOSInstallGuide(true);
+      } else {
+        alert(lang === 'ar'
+          ? 'لتثبيت التطبيق على هاتفك: اضغط على زر خيارات المتصفح (⋮) في الأعلى ثم اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية" 📲'
+          : 'Pour installer l\'application sur votre téléphone : ouvrez le menu (⋮) en haut à droite de Chrome puis cliquez sur "Installer l\'application" ou "Ajouter à l\'écran d\'accueil" 📲');
+      }
+    }
+  };
 
   // Close live search dropdown when clicking outside or pressing Escape
   useEffect(() => {
@@ -1061,6 +1119,35 @@ export default function App() {
 
   return (
     <div>
+      {/* PWA INSTALL BANNER */}
+      {showInstallBanner && !isAppInstalled && (
+        <div className="pwa-install-banner">
+          <div className="pwa-banner-left">
+            <img src="/assets/app-icon-192.png" alt="Chemsou Sneakers" className="pwa-banner-icon" />
+            <div className="pwa-banner-info">
+              <strong>{lang === 'ar' ? 'تثبيت تطبيق Chemsou Sneakers' : 'Installer l\'application Chemsou'}</strong>
+              <p>{lang === 'ar' ? 'تصفح أسرع، إشعارات وطلب بضغطة واحدة (69 ولاية)' : 'Accès rapide, commande en 1 clic & suivi 69 Wilayas'}</p>
+            </div>
+          </div>
+          <div className="pwa-banner-actions">
+            <button type="button" className="pwa-install-action-btn" onClick={triggerInstall}>
+              {lang === 'ar' ? '📲 تثبيت' : '📲 Installer'}
+            </button>
+            <button 
+              type="button" 
+              className="pwa-dismiss-btn" 
+              onClick={() => {
+                setShowInstallBanner(false);
+                sessionStorage.setItem('cs_dismiss_install', '1');
+              }}
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. TOPBAR */}
       <div className="topbar">
         <div className="topbar-center">
@@ -1075,6 +1162,14 @@ export default function App() {
           </button>
           <span>{lang.toUpperCase()}</span>
           <span>DZD</span>
+          {!isAppInstalled && (
+            <button 
+              onClick={triggerInstall}
+              style={{ color: 'var(--red)', fontWeight: 'bold', marginLeft: '6px' }}
+            >
+              📲 {lang === 'ar' ? 'تثبيت التطبيق' : 'Installer l\'App'}
+            </button>
+          )}
           {user?.role === 'admin' && (
             <button 
               onClick={() => setIsAdminOpen(true)}
@@ -1090,18 +1185,11 @@ export default function App() {
       <header className="header">
         <div className="header-main">
           {/* Logo with classy luxury badge styling */}
-          <a className="logo-image" href="#home" onClick={() => { setSelectedCategory('all'); setSelectedBrands([]); setOnlyPromo(false); }}>
-            <img 
-              className="brand-mark" 
-              src="/assets/chemsou-logo.png" 
-              alt="Chemsou Sneakers" 
-              style={{
-                background: '#000000',
-                borderRadius: '4px',
-                padding: '4px 10px',
-                boxShadow: '0 3px 12px rgba(0,0,0,0.18)'
-              }}
-            />
+          <a className="logo-brand" href="#home" onClick={() => { setSelectedCategory('all'); setSelectedBrands([]); setOnlyPromo(false); }}>
+            <div className="logo-brand-badge">
+              <span className="logo-brand-name">CHEMSOU</span>
+              <span className="logo-brand-sub">SNEAKERS<b className="logo-brand-dot">.</b></span>
+            </div>
           </a>
 
           {/* Search Bar with Live Instant Results Dropdown */}
@@ -1245,6 +1333,18 @@ export default function App() {
 
           {/* Header Tools */}
           <div className="header-tools">
+            {/* Quick PWA Install Pill (Mobile + Desktop if not installed) */}
+            {!isAppInstalled && (
+              <button 
+                type="button" 
+                className="header-tool pwa-quick-btn"
+                onClick={triggerInstall}
+                title="Installer l'application Chemsou Sneakers"
+              >
+                <span>📲 App</span>
+              </button>
+            )}
+
             {/* Language Switch Pill */}
             <div className="language-switch" data-language={lang}>
               <button 
@@ -1261,8 +1361,8 @@ export default function App() {
               </button>
             </div>
 
-            {/* Store Finder / Emplacement */}
-            <a className="header-tool store-finder" href="#emplacement">
+            {/* Store Finder / Emplacement (Desktop only) */}
+            <a className="header-tool store-finder desktop-only-tool" href="#emplacement">
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
@@ -1272,17 +1372,18 @@ export default function App() {
 
             {/* Admin Tool Button (Clients don't need login, only Admin) */}
             {user?.role === 'admin' ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <button 
                   className="header-tool profile-link"
                   onClick={() => setIsAdminOpen(true)}
-                  style={{ background: '#111', color: '#fff', padding: '6px 12px', borderRadius: '4px' }}
+                  style={{ background: '#111', color: '#fff', padding: '6px 10px', borderRadius: '4px' }}
                   title="Panneau Administrateur"
                 >
-                  <span style={{ fontWeight: 'bold' }}>👑 Espace Admin</span>
+                  <span style={{ fontWeight: 'bold' }}>👑 Admin</span>
                 </button>
                 <button 
                   onClick={handleLogout}
+                  className="desktop-only-tool"
                   style={{ fontSize: '11px', color: '#666', padding: '4px 8px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer' }}
                   title="Déconnexion Administrateur"
                 >
@@ -1291,7 +1392,7 @@ export default function App() {
               </div>
             ) : (
               <button 
-                className="header-tool profile-link"
+                className="header-tool profile-link desktop-only-tool"
                 onClick={() => { setAuthMode('login'); setIsAuthOpen(true); }}
                 title="Accès Administrateur"
               >
@@ -1310,7 +1411,7 @@ export default function App() {
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
               </svg>
-              <span>{t.cart}</span>
+              <span className="cart-text">{t.cart}</span>
               <b>{cartCount}</b>
             </button>
           </div>
@@ -1365,13 +1466,22 @@ export default function App() {
               ? 'أحذية رياضية عصرية، أطقم ملابس الشارع، وتشكيلات حصرية في الجزائر. التوصيل متوفر لـ 69 ولاية والدفع عند الاستلام.'
               : 'Baskets tendance, ensembles streetwear et nouveautés exclusives en Algérie. Livraison 69 Wilayas et paiement à la livraison.'}
           </p>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div className="hero-buttons-row">
             <a href="#shop" className="btn btn-dark">
               {lang === 'ar' ? 'اكتشف المتجر ←' : 'DÉCOUVRIR LA BOUTIQUE →'}
             </a>
             <a href="#emplacement" className="btn btn-light" style={{ border: '1px solid #111' }}>
-              Notre Emplacement
+              📍 {lang === 'ar' ? 'موقعنا (وهران)' : 'Notre Emplacement (Oran)'}
             </a>
+            {!isAppInstalled && (
+              <button 
+                type="button" 
+                onClick={triggerInstall} 
+                className="btn btn-app-install"
+              >
+                📲 {lang === 'ar' ? 'تثبيت التطبيق' : 'Installer l\'Application'}
+              </button>
+            )}
           </div>
         </div>
         <div className="hero-shape">
@@ -3196,6 +3306,18 @@ export default function App() {
           <span className="tab-label">{lang === 'ar' ? 'السلة' : 'Panier'}</span>
         </button>
 
+        {!isAppInstalled && (
+          <button 
+            type="button"
+            className="mobile-bottom-tab install-tab"
+            onClick={triggerInstall}
+            style={{ color: '#e4002b' }}
+          >
+            <span className="tab-icon">📲</span>
+            <span className="tab-label">{lang === 'ar' ? 'تثبيت' : 'Installer'}</span>
+          </button>
+        )}
+
         {user?.role === 'admin' ? (
           <button 
             type="button"
@@ -3208,7 +3330,7 @@ export default function App() {
             <span className="tab-icon">👑</span>
             <span className="tab-label">Admin</span>
           </button>
-        ) : (
+        ) : isAppInstalled ? (
           <button 
             type="button"
             className="mobile-bottom-tab"
@@ -3217,8 +3339,37 @@ export default function App() {
             <span className="tab-icon">📦</span>
             <span className="tab-label">{lang === 'ar' ? 'التتبع' : 'Suivi'}</span>
           </button>
-        )}
+        ) : null}
       </nav>
+
+      {/* iOS PWA Installation Guide Modal */}
+      {showIOSInstallGuide && (
+        <div className="modal open" onClick={() => setShowIOSInstallGuide(false)}>
+          <div className="ios-install-modal-box" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowIOSInstallGuide(false)}>×</button>
+            <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+              <img src="/assets/app-icon-192.png" alt="Chemsou" style={{ width: '60px', height: '60px', borderRadius: '12px', marginBottom: '8px' }} />
+              <h3 style={{ fontSize: '18px', margin: 0, fontWeight: '900' }}>
+                {lang === 'ar' ? 'تثبيت التطبيق على iPhone' : 'Installer sur iPhone'}
+              </h3>
+            </div>
+            <ol className="ios-steps-list">
+              <li>
+                <span>1.</span> {lang === 'ar' ? 'اضغط على زر المشاركة ⎋ في أسفل متصفح Safari' : 'Appuyez sur le bouton de Partage (icône ⎋) en bas de Safari.'}
+              </li>
+              <li>
+                <span>2.</span> {lang === 'ar' ? 'مرر للأسفل واختر "إضافة إلى الشاشة الرئيسية" ➕' : 'Faites défiler vers le bas et sélectionnez "Sur l\'écran d\'accueil" (+).'}
+              </li>
+              <li>
+                <span>3.</span> {lang === 'ar' ? 'اضغط "إضافة" (Add) في الزاوية العلوية' : 'Appuyez sur "Ajouter" en haut à droite pour finaliser.'}
+              </li>
+            </ol>
+            <button type="button" className="btn btn-dark" style={{ width: '100%', marginTop: '14px', height: '44px' }} onClick={() => setShowIOSInstallGuide(false)}>
+              {lang === 'ar' ? 'حسناً، فهمت' : 'Compris !'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
