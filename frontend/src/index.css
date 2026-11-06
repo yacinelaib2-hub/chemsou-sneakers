@@ -54,29 +54,36 @@ a {
   color: inherit;
 }
 
-/* PWA INSTALL BANNER */
-.pwa-install-banner {
-  background: linear-gradient(90deg, #0e0e0e 0%, #1c1c1e 100%);
+/* MOBILE-ONLY DISCREET INSTALL TOAST BAR */
+.pwa-mobile-toast-bar {
+  position: fixed;
+  bottom: 74px; /* Perfectly positioned right above the mobile bottom tab bar */
+  left: 12px;
+  right: 12px;
+  max-width: 440px;
+  margin: 0 auto;
+  background: rgba(18, 18, 18, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #ffffff;
-  padding: 10px 16px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-  animation: bannerSlideDown 0.3s ease-out;
+  gap: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 999999;
+  animation: pwaToastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes bannerSlideDown {
-  from { transform: translateY(-100%); opacity: 0; }
+@keyframes pwaToastSlideUp {
+  from { transform: translateY(30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-.pwa-banner-left {
+.pwa-toast-content {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -84,77 +91,74 @@ a {
   flex: 1;
 }
 
-.pwa-banner-icon {
-  width: 38px;
-  height: 38px;
+.pwa-toast-icon {
+  width: 36px;
+  height: 36px;
   border-radius: 9px;
   object-fit: cover;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.pwa-banner-info {
+.pwa-toast-info {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  line-height: 1.25;
 }
 
-.pwa-banner-info strong {
-  font-size: 13px;
-  font-weight: 900;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.pwa-toast-info strong {
+  font-size: 12.5px;
+  font-weight: 800;
   color: #ffffff;
-  letter-spacing: -0.2px;
-}
-
-.pwa-banner-info p {
-  font-size: 11px;
-  color: #bbbbbb;
-  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.pwa-banner-actions {
+.pwa-toast-info small {
+  font-size: 10.5px;
+  color: #a8a8a8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pwa-toast-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
-.pwa-install-action-btn {
+.pwa-toast-btn {
   background: var(--red);
   color: #ffffff;
   border: none;
-  padding: 7px 15px;
-  font-size: 12px;
-  font-weight: 900;
-  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 800;
+  border-radius: 18px;
   cursor: pointer;
-  transition: transform 0.15s, background 0.15s;
   box-shadow: 0 2px 10px rgba(228, 0, 43, 0.45);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  transition: transform 0.15s, background 0.15s;
+  white-space: nowrap;
 }
 
-.pwa-install-action-btn:hover {
+.pwa-toast-btn:hover {
   background: #ff1a40;
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
-.pwa-dismiss-btn {
-  background: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
+.pwa-toast-close {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ddd;
   border: none;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  font-size: 18px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,20 +166,16 @@ a {
   line-height: 1;
 }
 
-.pwa-dismiss-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+.pwa-toast-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
 }
 
-/* Header Quick Install Pill */
-.pwa-quick-btn {
-  background: #e4002b !important;
-  color: #ffffff !important;
-  padding: 5px 11px !important;
-  border-radius: 20px !important;
-  font-weight: 900 !important;
-  font-size: 11px !important;
-  border: none !important;
-  box-shadow: 0 2px 8px rgba(228,0,43,0.35) !important;
+/* Strictly hide on desktop/tablet */
+@media (min-width: 769px) {
+  .pwa-mobile-toast-bar {
+    display: none !important;
+  }
 }
 
 /* iOS PWA Install Guide Modal */

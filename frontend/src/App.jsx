@@ -283,6 +283,11 @@ const DEFAULT_BRANDS = [
   'Under Armour', 'Asics', 'Vans'
 ];
 
+const checkIsMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+};
+
 export default function App() {
   // --- STATE ---
   const [lang, setLang] = useState(() => localStorage.getItem('cs_lang') || 'fr');
@@ -316,10 +321,17 @@ export default function App() {
   });
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('cs_token') || null);
 
-  // PWA & Mobile Installation State
+  // PWA & Mobile Installation State (Mobile only)
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isAppInstalled, setIsAppInstalled] = useState(false);
-  const [showInstallBanner, setShowInstallBanner] = useState(true);
+  const [isMobile, setIsMobile] = useState(() => checkIsMobile());
+  const [isAppInstalled, setIsAppInstalled] = useState(() => {
+    try {
+      return localStorage.getItem('cs_installed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [showIOSInstallGuide, setShowIOSInstallGuide] = useState(false);
 
   // Filters & Search
@@ -547,18 +559,36 @@ export default function App() {
     fetchBrands();
   }, []);
 
-  // PWA beforeinstallprompt & installation listener
+  // PWA & Mobile Installation listener (Mobile only)
   useEffect(() => {
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    const handleResize = () => setIsMobile(checkIsMobile());
+    window.addEventListener('resize', handleResize);
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const wasInstalled = localStorage.getItem('cs_installed') === 'true';
+
+    if (isStandalone || wasInstalled) {
       setIsAppInstalled(true);
       setShowInstallBanner(false);
-      return;
+      return () => window.removeEventListener('resize', handleResize);
+    }
+
+    // Never prompt on desktop/PC
+    if (!checkIsMobile()) {
+      setShowInstallBanner(false);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+
+    // If dismissed previously on mobile, don't ask again
+    if (localStorage.getItem('cs_install_dismissed') === 'true') {
+      setShowInstallBanner(false);
     }
 
     const handleBeforeInstall = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      if (!sessionStorage.getItem('cs_dismiss_install')) {
+      // Only show on mobile and only if never dismissed/installed
+      if (checkIsMobile() && !localStorage.getItem('cs_installed') && !localStorage.getItem('cs_install_dismissed')) {
         setShowInstallBanner(true);
       }
     };
@@ -567,17 +597,28 @@ export default function App() {
       setIsAppInstalled(true);
       setShowInstallBanner(false);
       setDeferredPrompt(null);
-      showToast('🎉 Application Chemsou Sneakers installée avec succès !');
+      try {
+        localStorage.setItem('cs_installed', 'true');
+      } catch (err) {}
+      showToast(lang === 'ar' ? '✓ تم تثبيت تطبيق Chemsou Sneakers بنجاح' : '✓ Application Chemsou Sneakers installée !');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
     window.addEventListener('appinstalled', handleAppInstalled);
 
+    // If mobile, show little discreet prompt after 2 seconds
+    let timer = null;
+    if (checkIsMobile() && !localStorage.getItem('cs_installed') && !localStorage.getItem('cs_install_dismissed')) {
+      timer = setTimeout(() => setShowInstallBanner(true), 2000);
+    }
+
     return () => {
+      if (timer) clearTimeout(timer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [lang]);
 
   const triggerInstall = async () => {
     if (deferredPrompt) {
@@ -585,7 +626,12 @@ export default function App() {
       const choice = await deferredPrompt.userChoice;
       if (choice.outcome === 'accepted') {
         setShowInstallBanner(false);
+        setIsAppInstalled(true);
         setDeferredPrompt(null);
+        try {
+          localStorage.setItem('cs_installed', 'true');
+        } catch (err) {}
+        showToast(lang === 'ar' ? '✓ تم تثبيت التطبيق بنجاح' : '✓ Application Chemsou Sneakers installée !');
       }
     } else {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -597,6 +643,13 @@ export default function App() {
           : 'Pour installer l\'application sur votre téléphone : ouvrez le menu (⋮) en haut à droite de Chrome puis cliquez sur "Installer l\'application" ou "Ajouter à l\'écran d\'accueil" 📲');
       }
     }
+  };
+
+  const dismissInstall = () => {
+    setShowInstallBanner(false);
+    try {
+      localStorage.setItem('cs_install_dismissed', 'true');
+    } catch (err) {}
   };
 
   // Close live search dropdown when clicking outside or pressing Escape
@@ -1119,27 +1172,24 @@ export default function App() {
 
   return (
     <div>
-      {/* PWA INSTALL BANNER */}
-      {showInstallBanner && !isAppInstalled && (
-        <div className="pwa-install-banner">
-          <div className="pwa-banner-left">
-            <img src="/assets/app-icon-192.png" alt="Chemsou Sneakers" className="pwa-banner-icon" />
-            <div className="pwa-banner-info">
+      {/* MOBILE-ONLY DISCREET INSTALL NOTIFICATION (Never on desktop, never if already installed) */}
+      {isMobile && showInstallBanner && !isAppInstalled && (
+        <div className="pwa-mobile-toast-bar">
+          <div className="pwa-toast-content">
+            <img src="/assets/app-icon-192.png" alt="Chemsou Sneakers" className="pwa-toast-icon" />
+            <div className="pwa-toast-info">
               <strong>{lang === 'ar' ? 'تثبيت تطبيق Chemsou Sneakers' : 'Installer l\'application Chemsou'}</strong>
-              <p>{lang === 'ar' ? 'تصفح أسرع، إشعارات وطلب بضغطة واحدة (69 ولاية)' : 'Accès rapide, commande en 1 clic & suivi 69 Wilayas'}</p>
+              <small>{lang === 'ar' ? 'طلب فوري ومتابعة الشحن' : 'Accès rapide & commande en 1 clic'}</small>
             </div>
           </div>
-          <div className="pwa-banner-actions">
-            <button type="button" className="pwa-install-action-btn" onClick={triggerInstall}>
-              {lang === 'ar' ? '📲 تثبيت' : '📲 Installer'}
+          <div className="pwa-toast-actions">
+            <button type="button" className="pwa-toast-btn" onClick={triggerInstall}>
+              {lang === 'ar' ? 'تثبيت 📲' : 'Installer 📲'}
             </button>
             <button 
               type="button" 
-              className="pwa-dismiss-btn" 
-              onClick={() => {
-                setShowInstallBanner(false);
-                sessionStorage.setItem('cs_dismiss_install', '1');
-              }}
+              className="pwa-toast-close" 
+              onClick={dismissInstall}
               aria-label="Fermer"
             >
               ×
@@ -1162,14 +1212,6 @@ export default function App() {
           </button>
           <span>{lang.toUpperCase()}</span>
           <span>DZD</span>
-          {!isAppInstalled && (
-            <button 
-              onClick={triggerInstall}
-              style={{ color: 'var(--red)', fontWeight: 'bold', marginLeft: '6px' }}
-            >
-              📲 {lang === 'ar' ? 'تثبيت التطبيق' : 'Installer l\'App'}
-            </button>
-          )}
           {user?.role === 'admin' && (
             <button 
               onClick={() => setIsAdminOpen(true)}
@@ -1333,18 +1375,6 @@ export default function App() {
 
           {/* Header Tools */}
           <div className="header-tools">
-            {/* Quick PWA Install Pill (Mobile + Desktop if not installed) */}
-            {!isAppInstalled && (
-              <button 
-                type="button" 
-                className="header-tool pwa-quick-btn"
-                onClick={triggerInstall}
-                title="Installer l'application Chemsou Sneakers"
-              >
-                <span>📲 App</span>
-              </button>
-            )}
-
             {/* Language Switch Pill */}
             <div className="language-switch" data-language={lang}>
               <button 
@@ -1473,15 +1503,6 @@ export default function App() {
             <a href="#emplacement" className="btn btn-light" style={{ border: '1px solid #111' }}>
               📍 {lang === 'ar' ? 'موقعنا (وهران)' : 'Notre Emplacement (Oran)'}
             </a>
-            {!isAppInstalled && (
-              <button 
-                type="button" 
-                onClick={triggerInstall} 
-                className="btn btn-app-install"
-              >
-                📲 {lang === 'ar' ? 'تثبيت التطبيق' : 'Installer l\'Application'}
-              </button>
-            )}
           </div>
         </div>
         <div className="hero-shape">
@@ -3306,18 +3327,6 @@ export default function App() {
           <span className="tab-label">{lang === 'ar' ? 'السلة' : 'Panier'}</span>
         </button>
 
-        {!isAppInstalled && (
-          <button 
-            type="button"
-            className="mobile-bottom-tab install-tab"
-            onClick={triggerInstall}
-            style={{ color: '#e4002b' }}
-          >
-            <span className="tab-icon">📲</span>
-            <span className="tab-label">{lang === 'ar' ? 'تثبيت' : 'Installer'}</span>
-          </button>
-        )}
-
         {user?.role === 'admin' ? (
           <button 
             type="button"
@@ -3330,7 +3339,7 @@ export default function App() {
             <span className="tab-icon">👑</span>
             <span className="tab-label">Admin</span>
           </button>
-        ) : isAppInstalled ? (
+        ) : (
           <button 
             type="button"
             className="mobile-bottom-tab"
@@ -3339,7 +3348,7 @@ export default function App() {
             <span className="tab-icon">📦</span>
             <span className="tab-label">{lang === 'ar' ? 'التتبع' : 'Suivi'}</span>
           </button>
-        ) : null}
+        )}
       </nav>
 
       {/* iOS PWA Installation Guide Modal */}
