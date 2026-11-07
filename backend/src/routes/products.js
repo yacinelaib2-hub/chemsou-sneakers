@@ -301,10 +301,28 @@ router.post('/', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }, { 
     const insertResult = await productsCol.insertOne(newDoc);
     console.log(`✓ Added product "${name}" (ID ${nextNumericId}) with image saved in MongoDB!`);
 
+    const createdProd = {
+      id: nextNumericId,
+      numeric_id: nextNumericId,
+      _id: insertResult.insertedId.toString(),
+      name: newDoc.name,
+      brand: newDoc.brand,
+      category: newDoc.category,
+      gender: newDoc.gender,
+      price: newDoc.price,
+      old_price: newDoc.old_price,
+      description: newDoc.description,
+      image: newDoc.image_data_uri || newDoc.image,
+      images: [newDoc.image_data_uri || newDoc.image],
+      sizes: newDoc.sizes,
+      created_at: newDoc.created_at
+    };
+
     res.status(201).json({
       id: nextNumericId,
       _id: insertResult.insertedId.toString(),
-      message: 'Produit et image enregistrés avec succès dans MongoDB.'
+      message: 'Produit et image enregistrés avec succès dans MongoDB.',
+      product: createdProd
     });
   } catch (err) {
     console.error('Add product error:', err);

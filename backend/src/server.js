@@ -34,20 +34,29 @@ if (fs.existsSync(frontendDistAssets)) {
 app.use('/assets', express.static(projectAssets));
 app.use('/uploads', express.static(uploadsDir));
 
-// 2. API Routes
+// 2. API Routes (mounted with and without /api prefix for seamless Vercel serverless routing)
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/brands', brandRoutes);
+app.use('/auth', authRoutes);
 
-app.get('/api/health', (req, res) => {
+app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
+
+app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes);
+
+app.use('/api/brands', brandRoutes);
+app.use('/brands', brandRoutes);
+
+const healthHandler = (req, res) => {
   res.json({
     status: 'ok',
     name: 'Chemsou Sneakers & Streetwear API',
     database: 'MongoDB (chemsou_store)',
     timestamp: new Date()
   });
-});
+};
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
 
 // 3. Serve Frontend Root & SPA Fallback
 if (fs.existsSync(frontendDist)) {

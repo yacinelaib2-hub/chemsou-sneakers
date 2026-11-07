@@ -446,11 +446,64 @@ export default function App() {
   const [creatingProduct, setCreatingProduct] = useState(false);
   const [adminTab, setAdminTab] = useState('orders');
 
-  // Helper for image url
+  // Helper for image url: preserves base64 DataURIs, blobs, and absolute/remote URLs
   const formatImg = (img) => {
     if (!img) return '/assets/placeholder.png';
-    if (img.startsWith('http') || img.startsWith('//')) return img;
+    if (typeof img !== 'string') return '/assets/placeholder.png';
+    if (img.startsWith('data:') || img.startsWith('blob:') || img.startsWith('http://') || img.startsWith('https://') || img.startsWith('//')) {
+      return img;
+    }
     return img.startsWith('/') ? img : '/' + img;
+  };
+
+  // Helper to compress client-uploaded images (especially high-res mobile smartphone camera photos)
+  const compressImage = (file, maxWidth = 1000, quality = 0.82) => {
+    return new Promise((resolve) => {
+      if (!file || !file.type.startsWith('image/')) {
+        resolve(null);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Helper to convert dataUrl to Blob for FormData
+  const dataURLtoBlob = (dataurl) => {
+    try {
+      const arr = dataurl.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
+    } catch (e) {
+      return null;
+    }
   };
 
   // Helper for price formatting
@@ -2504,10 +2557,21 @@ export default function App() {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files[0] || null;
-                            setEditModalImageFile(file);
-                            setEditModalImagePreview(file ? URL.createObjectURL(file) : null);
+                            if (file) {
+                              const compressedDataUrl = await compressImage(file);
+                              setEditModalImagePreview(compressedDataUrl);
+                              const blob = dataURLtoBlob(compressedDataUrl);
+                              if (blob) {
+                                setEditModalImageFile(new File([blob], file.name || 'product.jpg', { type: blob.type }));
+                              } else {
+                                setEditModalImageFile(file);
+                              }
+                            } else {
+                              setEditModalImageFile(null);
+                              setEditModalImagePreview(null);
+                            }
                           }}
                           style={{ width: '100%', padding: '6px 0', fontSize: '12px' }}
                         />
@@ -3469,14 +3533,19 @@ export default function App() {
                 <input 
                   type="file" 
                   accept="image/*"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files[0] || null;
-                    setNewProductImage(file);
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => setNewProductImagePreview(reader.result);
-                      reader.readAsDataURL(file);
+                      const compressedDataUrl = await compressImage(file);
+                      setNewProductImagePreview(compressedDataUrl);
+                      const blob = dataURLtoBlob(compressedDataUrl);
+                      if (blob) {
+                        setNewProductImage(new File([blob], file.name || 'product.jpg', { type: blob.type }));
+                      } else {
+                        setNewProductImage(file);
+                      }
                     } else {
+                      setNewProductImage(null);
                       setNewProductImagePreview(null);
                     }
                   }}
