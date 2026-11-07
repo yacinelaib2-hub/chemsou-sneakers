@@ -4,13 +4,70 @@ import { translations, ALGERIA_WILAYAS } from './translations';
 // Default standalone catalog for 0ms instant loading & high resilience
 const DEFAULT_PRODUCTS = [
   {
-    id: 13,
-    name: "T-Shirt Streetwear Adidas Trefoil",
-    brand: "Adidas",
+    id: 22,
+    name: "Ensemble Nike Tech Fleece Triple Black",
+    brand: "Nike",
     category: "Vêtements",
     gender: "Homme",
-    price: 2500,
-    old_price: null,
+    price: 27900,
+    old_price: 31500,
+    image: "/assets/products/p16.png",
+    images: ["/assets/products/p16.png"],
+    sizes: [
+      { size: "S", stock: 6 },
+      { size: "M", stock: 6 },
+      { size: "L", stock: 6 },
+      { size: "XL", stock: 6 },
+      { size: "XXL", stock: 6 }
+    ],
+    description: "Survêtement technique Nike Tech Fleece veste zippée et pantalon fuselé en matière thermique légère."
+  },
+  {
+    id: 21,
+    name: "Ensemble Syna World Tracksuit Grey & Red",
+    brand: "Syna World",
+    category: "Vêtements",
+    gender: "Homme",
+    price: 26500,
+    old_price: 29900,
+    image: "/assets/products/p15.png",
+    images: ["/assets/products/p15.png"],
+    sizes: [
+      { size: "S", stock: 6 },
+      { size: "M", stock: 6 },
+      { size: "L", stock: 6 },
+      { size: "XL", stock: 6 },
+      { size: "XXL", stock: 6 }
+    ],
+    description: "Ensemble hoodie et jogging Syna World Central Cee avec finitions streetwear brodées."
+  },
+  {
+    id: 20,
+    name: "T-Shirt Palm Angels Gothic Logo Black",
+    brand: "Palm Angels",
+    category: "T-Shirts",
+    gender: "Homme",
+    price: 12000,
+    old_price: 14500,
+    image: "/assets/products/p2.png",
+    images: ["/assets/products/p2.png"],
+    sizes: [
+      { size: "S", stock: 6 },
+      { size: "M", stock: 6 },
+      { size: "L", stock: 6 },
+      { size: "XL", stock: 6 },
+      { size: "XXL", stock: 6 }
+    ],
+    description: "T-Shirt oversize avec signature calligraphie gothique Palm Angels au col et au dos."
+  },
+  {
+    id: 19,
+    name: "T-Shirt Streetwear Adidas Trefoil Classic",
+    brand: "Adidas",
+    category: "T-Shirts",
+    gender: "Homme",
+    price: 5500,
+    old_price: 6900,
     image: "/assets/products/p1.png",
     images: ["/assets/products/p1.png"],
     sizes: [
@@ -21,7 +78,130 @@ const DEFAULT_PRODUCTS = [
       { size: "XL", stock: 6 },
       { size: "XXL", stock: 6 }
     ],
-    description: "T-Shirt streetwear oversize 100% coton de qualité supérieure, coupe décontractée tendance."
+    description: "T-Shirt 100% coton coupe oversize décontractée et logo iconique Trefoil."
+  },
+  {
+    id: 18,
+    name: "T-Shirt Corteiz Island Alcatraz White",
+    brand: "Corteiz",
+    category: "T-Shirts",
+    gender: "Homme",
+    price: 9500,
+    old_price: 11000,
+    image: "/assets/products/p22.png",
+    images: ["/assets/products/p22.png"],
+    sizes: [
+      { size: "S", stock: 6 },
+      { size: "M", stock: 6 },
+      { size: "L", stock: 6 },
+      { size: "XL", stock: 6 },
+      { size: "XXL", stock: 6 }
+    ],
+    description: "T-Shirt Corteiz Rules The World Alcatraz Island en pur coton lourd peigné."
+  },
+  {
+    id: 17,
+    name: "T-Shirt Trapstar Shooters Black Edition",
+    brand: "Trapstar",
+    category: "T-Shirts",
+    gender: "Homme",
+    price: 8900,
+    old_price: 10500,
+    image: "/assets/products/p21.png",
+    images: ["/assets/products/p21.png"],
+    sizes: [
+      { size: "XS", stock: 6 },
+      { size: "S", stock: 6 },
+      { size: "M", stock: 6 },
+      { size: "L", stock: 6 },
+      { size: "XL", stock: 6 },
+      { size: "XXL", stock: 6 }
+    ],
+    description: "T-Shirt streetwear Trapstar London Shooters en coton épais 240g brodé."
+  },
+  {
+    id: 16,
+    name: "Jordan Sophia Slide Black & Gold",
+    brand: "Jordan",
+    category: "Claquettes",
+    gender: "Homme",
+    price: 12500,
+    old_price: 14500,
+    image: "/assets/products/p20.png",
+    images: ["/assets/products/p20.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Claquette plateforme Jordan bride croisée satinée avec amorti Air."
+  },
+  {
+    id: 15,
+    name: "Lacoste Croco Slide Vert & Blanc",
+    brand: "Lacoste",
+    category: "Claquettes",
+    gender: "Homme",
+    price: 9800,
+    old_price: 11500,
+    image: "/assets/products/p19.png",
+    images: ["/assets/products/p19.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Claquette d'été Lacoste Croco Slide avec bride ergonomique matelassée et crocodile embossé."
+  },
+  {
+    id: 14,
+    name: "Yeezy Slide Onyx (Adidas)",
+    brand: "Adidas",
+    category: "Claquettes",
+    gender: "Homme",
+    price: 14900,
+    old_price: 17500,
+    image: "/assets/products/p18.png",
+    images: ["/assets/products/p18.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Mule Yeezy Slide en mousse EVA injectée injectée, confort maximal et semelle crantée."
+  },
+  {
+    id: 13,
+    name: "Nike Calm Slide Triple Black",
+    brand: "Nike",
+    category: "Claquettes",
+    gender: "Homme",
+    price: 11500,
+    old_price: 13500,
+    image: "/assets/products/p17.png",
+    images: ["/assets/products/p17.png"],
+    sizes: [
+      { size: "39", stock: 6 },
+      { size: "40", stock: 6 },
+      { size: "41", stock: 6 },
+      { size: "42", stock: 6 },
+      { size: "43", stock: 6 },
+      { size: "44", stock: 6 },
+      { size: "45", stock: 6 }
+    ],
+    description: "Claquette Nike Calm Slide en mousse ultra-douce résistante à l'eau."
   },
   {
     id: 12,
@@ -378,11 +558,14 @@ export default function App() {
   const [editModalImagePreview, setEditModalImagePreview] = useState(null);
   const [savingModalProduct, setSavingModalProduct] = useState(false);
 
-  // Helper: detect if a product or category is Clothing
+  // Helper: detect if a product or category is Clothing or T-Shirts
   const isClothingCategory = (category, name = '') => {
     const cat = (category || '').toLowerCase();
     const n = (name || '').toLowerCase();
-    return cat === 'vêtements' || cat.includes('vêtement') || cat.includes('cloth') || 
+    if (cat.includes('claquette') || cat.includes('slide') || cat.includes('bligha') || n.includes('claquette') || n.includes('slide') || n.includes('bligha')) {
+      return false;
+    }
+    return cat === 'vêtements' || cat === 't-shirts' || cat.includes('vêtement') || cat.includes('cloth') || cat.includes('shirt') || cat.includes('tee') ||
            n.includes('ensemble') || n.includes('t-shirt') || n.includes('hoodie') || 
            n.includes('cargo') || n.includes('pantalon') || n.includes('survêtement') ||
            n.includes('doudoune') || n.includes('jogging') || n.includes('polo') || n.includes('sweat');
@@ -457,7 +640,7 @@ export default function App() {
   };
 
   // Helper to compress client-uploaded images (especially high-res mobile smartphone camera photos)
-  const compressImage = (file, maxWidth = 1000, quality = 0.82) => {
+  const compressImage = (file, maxWidth = 850, quality = 0.75) => {
     return new Promise((resolve) => {
       if (!file || !file.type.startsWith('image/')) {
         resolve(null);
@@ -469,9 +652,15 @@ export default function App() {
         img.onload = () => {
           let width = img.width;
           let height = img.height;
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
+          const maxDim = maxWidth;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
           }
           const canvas = document.createElement('canvas');
           canvas.width = width;
@@ -481,7 +670,7 @@ export default function App() {
           const dataUrl = canvas.toDataURL('image/jpeg', quality);
           resolve(dataUrl);
         };
-        img.onerror = () => resolve(e.target.result);
+        img.onerror = () => resolve(e.target?.result || null);
         img.src = e.target.result;
       };
       reader.onerror = () => resolve(null);
@@ -844,13 +1033,25 @@ export default function App() {
       if (selectedCategory !== 'all') {
         const catNorm = (p.category || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const targetNorm = selectedCategory.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        if (targetNorm.includes('vetement')) {
+        const nameNorm = (p.name || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        if (targetNorm.includes('claquette') || targetNorm.includes('slide') || targetNorm.includes('bligha')) {
+          const isSlide = catNorm.includes('claquette') || catNorm.includes('slide') || catNorm.includes('mule') || catNorm.includes('bligha') || catNorm.includes('sandal') ||
+            ['claquette', 'slide', 'mule', 'bligha', 'clacket', 'sandale'].some(w => nameNorm.includes(w));
+          if (!isSlide) return false;
+        } else if (targetNorm.includes('t-shirt') || targetNorm.includes('tshirt') || targetNorm.includes('shirt') || targetNorm.includes('tee')) {
+          const isTee = catNorm.includes('t-shirt') || catNorm.includes('tshirt') || catNorm.includes('tee') || catNorm.includes('shirt') || catNorm.includes('polo') ||
+            ['t-shirt', 'tshirt', 'tee', 'shirt', 'polo'].some(w => nameNorm.includes(w));
+          if (!isTee) return false;
+        } else if (targetNorm.includes('vetement') || targetNorm.includes('cloth')) {
           const isClothing = catNorm.includes('vetement') || catNorm.includes('cloth') || catNorm.includes('ensemble') ||
-            ['hoodie', 'tech', 'cargo', 't-shirt', 'doudoune', 'veste', 'pantalon', 'short', 'survetement'].some(w => (p.name || '').toLowerCase().includes(w));
-          if (!isClothing) return false;
+            ['hoodie', 'tech', 'cargo', 'doudoune', 'veste', 'pantalon', 'short', 'survetement', 'sweat', 'jogging', 'survet'].some(w => nameNorm.includes(w));
+          const isSlide = catNorm.includes('claquette') || catNorm.includes('slide') || catNorm.includes('bligha') || ['claquette', 'slide', 'bligha', 'clacket'].some(w => nameNorm.includes(w));
+          if (!isClothing || isSlide) return false;
         } else if (targetNorm.includes('sneaker') || targetNorm.includes('basket')) {
-          const isClothing = catNorm.includes('vetement') || catNorm.includes('cloth') || catNorm.includes('ensemble');
-          if (isClothing) return false;
+          const isNotSneaker = catNorm.includes('vetement') || catNorm.includes('cloth') || catNorm.includes('claquette') || catNorm.includes('slide') || catNorm.includes('bligha') || catNorm.includes('t-shirt') ||
+            ['ensemble', 'hoodie', 't-shirt', 'tee', 'pantalon', 'claquette', 'slide', 'bligha', 'clacket'].some(w => nameNorm.includes(w));
+          if (isNotSneaker) return false;
         }
       }
 
@@ -1246,7 +1447,12 @@ export default function App() {
       await fetchBrands();
       setAdminTab('products');
     } catch (err) {
-      alert('Erreur : ' + (err.message || 'Impossible d’enregistrer le produit.'));
+      console.error('handleCreateProduct error:', err);
+      const isNetworkErr = err.message === 'Failed to fetch' || (err.message && err.message.includes('fetch'));
+      const errorMsg = isNetworkErr
+        ? (lang === 'ar' ? 'تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت أو اختيار صورة أصغر حجماً.' : 'Erreur de connexion avec le serveur. Vérifiez votre connexion ou choisissez une photo plus légère.')
+        : (err.message || 'Impossible d’enregistrer le produit.');
+      alert('Erreur : ' + errorMsg);
     } finally {
       setCreatingProduct(false);
     }
@@ -1691,6 +1897,18 @@ export default function App() {
           >
             {t.clothes}
           </button>
+          <button 
+            className={selectedCategory === 'Claquettes' && !onlyPromo ? 'active' : ''}
+            onClick={() => { setSelectedCategory('Claquettes'); setOnlyPromo(false); setSelectedSize(''); scrollToSection('shop'); }}
+          >
+            {t.slides}
+          </button>
+          <button 
+            className={selectedCategory === 'T-Shirts' && !onlyPromo ? 'active' : ''}
+            onClick={() => { setSelectedCategory('T-Shirts'); setOnlyPromo(false); setSelectedSize(''); scrollToSection('shop'); }}
+          >
+            {t.tshirts}
+          </button>
           <a href="#brands" onClick={(e) => { e.preventDefault(); scrollToSection('brands'); }}>
             {t.brand}
           </a>
@@ -1823,7 +2041,7 @@ export default function App() {
             <p className="eyebrow">NOTRE SÉLECTION</p>
             <h2>Nouveautés & Tendances</h2>
           </div>
-          <div className="desktop-category-chips" style={{ display: 'flex', gap: '8px' }}>
+          <div className="desktop-category-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button 
               className={`brand-chip ${selectedCategory === 'Sneakers' ? 'active' : ''}`}
               onClick={() => {
@@ -1831,7 +2049,7 @@ export default function App() {
                 scrollToSection('shop');
               }}
             >
-              Baskets
+              👟 {t.sneakers}
             </button>
             <button 
               className={`brand-chip ${selectedCategory === 'Vêtements' ? 'active' : ''}`}
@@ -1840,7 +2058,25 @@ export default function App() {
                 scrollToSection('shop');
               }}
             >
-              Vêtements
+              🧥 {t.clothes}
+            </button>
+            <button 
+              className={`brand-chip ${selectedCategory === 'Claquettes' ? 'active' : ''}`}
+              onClick={() => {
+                setSelectedCategory(selectedCategory === 'Claquettes' ? 'all' : 'Claquettes');
+                scrollToSection('shop');
+              }}
+            >
+              🩴 {t.slides}
+            </button>
+            <button 
+              className={`brand-chip ${selectedCategory === 'T-Shirts' ? 'active' : ''}`}
+              onClick={() => {
+                setSelectedCategory(selectedCategory === 'T-Shirts' ? 'all' : 'T-Shirts');
+                scrollToSection('shop');
+              }}
+            >
+              👕 {t.tshirts}
             </button>
           </div>
         </div>
@@ -1890,7 +2126,21 @@ export default function App() {
               className={`mobile-quick-chip ${selectedCategory === 'Vêtements' ? 'active' : ''}`}
               onClick={() => { setSelectedCategory(selectedCategory === 'Vêtements' ? 'all' : 'Vêtements'); setOnlyPromo(false); }}
             >
-              👕 {lang === 'ar' ? 'ملابس' : 'Vêtements'}
+              🧥 {lang === 'ar' ? 'ملابس' : 'Vêtements'}
+            </button>
+            <button
+              type="button"
+              className={`mobile-quick-chip ${selectedCategory === 'Claquettes' ? 'active' : ''}`}
+              onClick={() => { setSelectedCategory(selectedCategory === 'Claquettes' ? 'all' : 'Claquettes'); setOnlyPromo(false); }}
+            >
+              🩴 {lang === 'ar' ? 'بليغة' : 'Claquettes'}
+            </button>
+            <button
+              type="button"
+              className={`mobile-quick-chip ${selectedCategory === 'T-Shirts' ? 'active' : ''}`}
+              onClick={() => { setSelectedCategory(selectedCategory === 'T-Shirts' ? 'all' : 'T-Shirts'); setOnlyPromo(false); }}
+            >
+              👕 {lang === 'ar' ? 'تيشيرت' : 'T-Shirts'}
             </button>
             <button
               type="button"
@@ -1925,7 +2175,11 @@ export default function App() {
                 className="active-filter-tag" 
                 onClick={() => setSelectedCategory('all')}
               >
-                {selectedCategory === 'Sneakers' ? (lang === 'ar' ? 'أحذية' : 'Baskets') : (lang === 'ar' ? 'ملابس' : 'Vêtements')} ×
+                {selectedCategory === 'Sneakers' ? (lang === 'ar' ? 'أحذية' : 'Baskets') :
+                 selectedCategory === 'Vêtements' ? (lang === 'ar' ? 'ملابس' : 'Vêtements') :
+                 selectedCategory === 'Claquettes' ? (lang === 'ar' ? 'بليغة وشباشب' : 'Claquettes') :
+                 selectedCategory === 'T-Shirts' ? (lang === 'ar' ? 'تيشيرتات' : 'T-Shirts') :
+                 selectedCategory} ×
               </button>
             )}
             {onlyPromo && (
@@ -1987,7 +2241,7 @@ export default function App() {
                   checked={selectedCategory === 'Sneakers'} 
                   onChange={() => { setSelectedCategory('Sneakers'); setOnlyPromo(false); }} 
                 />
-                <span>{t.sneakers}</span>
+                <span>👟 {t.sneakers}</span>
               </label>
               <label>
                 <input 
@@ -1996,7 +2250,25 @@ export default function App() {
                   checked={selectedCategory === 'Vêtements'} 
                   onChange={() => { setSelectedCategory('Vêtements'); setOnlyPromo(false); }} 
                 />
-                <span>{t.clothes}</span>
+                <span>🧥 {t.clothes}</span>
+              </label>
+              <label>
+                <input 
+                  type="radio" 
+                  name="category" 
+                  checked={selectedCategory === 'Claquettes'} 
+                  onChange={() => { setSelectedCategory('Claquettes'); setOnlyPromo(false); }} 
+                />
+                <span>🩴 {t.slides}</span>
+              </label>
+              <label>
+                <input 
+                  type="radio" 
+                  name="category" 
+                  checked={selectedCategory === 'T-Shirts'} 
+                  onChange={() => { setSelectedCategory('T-Shirts'); setOnlyPromo(false); }} 
+                />
+                <span>👕 {t.tshirts}</span>
               </label>
             </div>
 
@@ -2657,12 +2929,13 @@ export default function App() {
                             value={editModalData.category}
                             onChange={(e) => {
                               const nextCat = e.target.value;
+                              const isCloth = nextCat === 'Vêtements' || nextCat === 'T-Shirts';
                               const cur = (editModalData.sizes || '').split(',').map(s => s.trim().toUpperCase());
                               const hasCloth = cur.some(s => ['XS','S','M','L','XL','XXL'].includes(s));
                               let nextSizes = editModalData.sizes;
-                              if (nextCat === 'Vêtements' && !hasCloth) {
+                              if (isCloth && !hasCloth) {
                                 nextSizes = 'XS,S,M,L,XL,XXL';
-                              } else if (nextCat === 'Sneakers' && hasCloth) {
+                              } else if (!isCloth && hasCloth) {
                                 nextSizes = '39,40,41,42,43,44,45';
                               }
                               setEditModalData({ ...editModalData, category: nextCat, sizes: nextSizes });
@@ -2670,7 +2943,9 @@ export default function App() {
                             style={{ width: '100%', height: '38px', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px' }}
                           >
                             <option value="Sneakers">Baskets (Sneakers)</option>
-                            <option value="Vêtements">Vêtements</option>
+                            <option value="Claquettes">Claquettes & Slides (بليغة وشباشب)</option>
+                            <option value="Vêtements">Vêtements (Streetwear & Ensembles)</option>
+                            <option value="T-Shirts">T-Shirts & Polos (تيشيرتات)</option>
                           </select>
                         </label>
                       </div>
@@ -2705,12 +2980,15 @@ export default function App() {
                       <div style={{ margin: '10px 0' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                           <span style={{ fontSize: '11px', fontWeight: 'bold' }}>
-                            {editModalData.category === 'Vêtements' ? 'Tailles Vêtements (XS à XXL) :' : 'Pointures Baskets (39 à 45) :'}
+                            {(editModalData.category === 'Vêtements' || editModalData.category === 'T-Shirts')
+                              ? 'Tailles Vêtements & T-Shirts (XS à XXL) :' 
+                              : 'Pointures Baskets & Claquettes (39 à 45) :'}
                           </span>
                           <button
                             type="button"
                             onClick={() => {
-                              const def = editModalData.category === 'Vêtements' ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45';
+                              const isCloth = editModalData.category === 'Vêtements' || editModalData.category === 'T-Shirts';
+                              const def = isCloth ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45';
                               setEditModalData({ ...editModalData, sizes: def });
                             }}
                             style={{ fontSize: '10px', color: '#e4002b', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
@@ -2719,7 +2997,7 @@ export default function App() {
                           </button>
                         </div>
                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                          {(editModalData.category === 'Vêtements'
+                          {((editModalData.category === 'Vêtements' || editModalData.category === 'T-Shirts')
                             ? ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
                             : ['38', '39', '40', '41', '42', '43', '44', '45', '46']
                           ).map(sz => {
@@ -2759,7 +3037,7 @@ export default function App() {
                           value={editModalData.sizes || ''}
                           onChange={(e) => setEditModalData({ ...editModalData, sizes: e.target.value })}
                           style={{ width: '100%', height: '34px', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '12px' }}
-                          placeholder={editModalData.category === 'Vêtements' ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45'}
+                          placeholder={(editModalData.category === 'Vêtements' || editModalData.category === 'T-Shirts') ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45'}
                         />
                       </div>
 
@@ -3456,7 +3734,8 @@ export default function App() {
                     value={newProductData.category}
                     onChange={(e) => {
                       const nextCat = e.target.value;
-                      const nextSizes = nextCat === 'Vêtements' ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45';
+                      const isCloth = nextCat === 'Vêtements' || nextCat === 'T-Shirts';
+                      const nextSizes = isCloth ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45';
                       setNewProductData({
                         ...newProductData,
                         category: nextCat,
@@ -3465,7 +3744,9 @@ export default function App() {
                     }}
                   >
                     <option value="Sneakers">Baskets (Sneakers)</option>
-                    <option value="Vêtements">Vêtements</option>
+                    <option value="Claquettes">Claquettes & Slides (بليغة وشباشب)</option>
+                    <option value="Vêtements">Vêtements (Streetwear & Ensembles)</option>
+                    <option value="T-Shirts">T-Shirts & Polos (تيشيرتات)</option>
                   </select>
                 </label>
               </div>
@@ -3524,12 +3805,15 @@ export default function App() {
               <div style={{ margin: '12px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <label style={{ fontWeight: 'bold', fontSize: '13px' }}>
-                    {newProductData.category === 'Vêtements' ? 'Tailles Vêtements (XS, S, M, L, XL, XXL) :' : 'Pointures Baskets (39 à 45) :'}
+                    {(newProductData.category === 'Vêtements' || newProductData.category === 'T-Shirts')
+                      ? 'Tailles Vêtements & T-Shirts (XS, S, M, L, XL, XXL) :' 
+                      : 'Pointures Baskets & Claquettes (39 à 45) :'}
                   </label>
                   <button
                     type="button"
                     onClick={() => {
-                      const def = newProductData.category === 'Vêtements' ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45';
+                      const isCloth = newProductData.category === 'Vêtements' || newProductData.category === 'T-Shirts';
+                      const def = isCloth ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45';
                       setNewProductData({ ...newProductData, sizes: def });
                     }}
                     style={{ fontSize: '11px', color: '#e4002b', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
@@ -3539,7 +3823,7 @@ export default function App() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                  {(newProductData.category === 'Vêtements' 
+                  {((newProductData.category === 'Vêtements' || newProductData.category === 'T-Shirts')
                     ? ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
                     : ['38', '39', '40', '41', '42', '43', '44', '45', '46']
                   ).map(sz => {
@@ -3580,7 +3864,7 @@ export default function App() {
                   style={{ width: '100%', height: '38px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
                   value={newProductData.sizes}
                   onChange={(e) => setNewProductData({ ...newProductData, sizes: e.target.value })}
-                  placeholder={newProductData.category === 'Vêtements' ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45'}
+                  placeholder={(newProductData.category === 'Vêtements' || newProductData.category === 'T-Shirts') ? 'XS,S,M,L,XL,XXL' : '39,40,41,42,43,44,45'}
                 />
               </div>
 
@@ -3707,23 +3991,36 @@ export default function App() {
             scrollToSection('shop');
           }}
         >
-          <span className="tab-icon">👕</span>
+          <span className="tab-icon">🧥</span>
           <span className="tab-label">{lang === 'ar' ? 'ملابس' : 'Vêtements'}</span>
         </button>
 
         <button 
           type="button"
-          className="mobile-bottom-tab"
+          className={`mobile-bottom-tab ${selectedCategory === 'Claquettes' && !onlyPromo ? 'active' : ''}`}
           onClick={() => {
-            const input = document.querySelector('.header-search input');
-            if (input) {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              setTimeout(() => input.focus(), 300);
-            }
+            setSelectedCategory('Claquettes');
+            setOnlyPromo(false);
+            setSelectedSize('');
+            scrollToSection('shop');
           }}
         >
-          <span className="tab-icon">🔍</span>
-          <span className="tab-label">{lang === 'ar' ? 'بحث' : 'Recherche'}</span>
+          <span className="tab-icon">🩴</span>
+          <span className="tab-label">{lang === 'ar' ? 'بليغة' : 'Claquettes'}</span>
+        </button>
+
+        <button 
+          type="button"
+          className={`mobile-bottom-tab ${selectedCategory === 'T-Shirts' && !onlyPromo ? 'active' : ''}`}
+          onClick={() => {
+            setSelectedCategory('T-Shirts');
+            setOnlyPromo(false);
+            setSelectedSize('');
+            scrollToSection('shop');
+          }}
+        >
+          <span className="tab-icon">👕</span>
+          <span className="tab-label">{lang === 'ar' ? 'تيشيرت' : 'T-Shirts'}</span>
         </button>
 
         <button 
@@ -3737,29 +4034,6 @@ export default function App() {
           </span>
           <span className="tab-label">{lang === 'ar' ? 'السلة' : 'Panier'}</span>
         </button>
-
-        {user?.role === 'admin' ? (
-          <button 
-            type="button"
-            className="mobile-bottom-tab admin-tab"
-            onClick={() => {
-              setIsSearchOpen(false);
-              setIsAdminOpen(true);
-            }}
-          >
-            <span className="tab-icon">👑</span>
-            <span className="tab-label">Admin</span>
-          </button>
-        ) : (
-          <button 
-            type="button"
-            className="mobile-bottom-tab"
-            onClick={() => setIsTrackingOpen(true)}
-          >
-            <span className="tab-icon">📦</span>
-            <span className="tab-label">{lang === 'ar' ? 'التتبع' : 'Suivi'}</span>
-          </button>
-        )}
       </nav>
 
       {/* iOS PWA Installation Guide Modal */}
@@ -3850,7 +4124,21 @@ export default function App() {
                     className={`drawer-choice-chip ${selectedCategory === 'Vêtements' ? 'active' : ''}`}
                     onClick={() => { setSelectedCategory('Vêtements'); setOnlyPromo(false); }}
                   >
-                    👕 {lang === 'ar' ? 'ملابس وستريت وير' : 'Vêtements & Ensembles'}
+                    🧥 {lang === 'ar' ? 'ملابس وأطقم' : 'Vêtements & Ensembles'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${selectedCategory === 'Claquettes' ? 'active' : ''}`}
+                    onClick={() => { setSelectedCategory('Claquettes'); setOnlyPromo(false); }}
+                  >
+                    🩴 {lang === 'ar' ? 'بليغة وشباشب' : 'Claquettes & Slides'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${selectedCategory === 'T-Shirts' ? 'active' : ''}`}
+                    onClick={() => { setSelectedCategory('T-Shirts'); setOnlyPromo(false); }}
+                  >
+                    👕 {lang === 'ar' ? 'تيشيرتات' : 'T-Shirts & Polos'}
                   </button>
                   <button
                     type="button"
@@ -3913,7 +4201,7 @@ export default function App() {
                   )}
                 </div>
                 <div className="drawer-sizes-group">
-                  <span className="drawer-sublabel">Pointures Baskets :</span>
+                  <span className="drawer-sublabel">{lang === 'ar' ? 'مقاسات الأحذية والشباشب :' : 'Pointures Baskets & Claquettes :'}</span>
                   <div className="drawer-sizes-row">
                     {['39', '40', '41', '42', '43', '44', '45'].map(sz => (
                       <button
@@ -3928,7 +4216,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="drawer-sizes-group" style={{ marginTop: '10px' }}>
-                  <span className="drawer-sublabel">Tailles Vêtements :</span>
+                  <span className="drawer-sublabel">{lang === 'ar' ? 'مقاسات الملابس والتيشيرتات :' : 'Tailles Vêtements & T-Shirts :'}</span>
                   <div className="drawer-sizes-row">
                     {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(sz => (
                       <button
