@@ -4,206 +4,6 @@ import { translations, ALGERIA_WILAYAS } from './translations';
 // Default standalone catalog for 0ms instant loading & high resilience
 const DEFAULT_PRODUCTS = [
   {
-    id: 22,
-    name: "Ensemble Nike Tech Fleece Triple Black",
-    brand: "Nike",
-    category: "Vêtements",
-    gender: "Homme",
-    price: 27900,
-    old_price: 31500,
-    image: "/assets/products/p16.png",
-    images: ["/assets/products/p16.png"],
-    sizes: [
-      { size: "S", stock: 6 },
-      { size: "M", stock: 6 },
-      { size: "L", stock: 6 },
-      { size: "XL", stock: 6 },
-      { size: "XXL", stock: 6 }
-    ],
-    description: "Survêtement technique Nike Tech Fleece veste zippée et pantalon fuselé en matière thermique légère."
-  },
-  {
-    id: 21,
-    name: "Ensemble Syna World Tracksuit Grey & Red",
-    brand: "Syna World",
-    category: "Vêtements",
-    gender: "Homme",
-    price: 26500,
-    old_price: 29900,
-    image: "/assets/products/p15.png",
-    images: ["/assets/products/p15.png"],
-    sizes: [
-      { size: "S", stock: 6 },
-      { size: "M", stock: 6 },
-      { size: "L", stock: 6 },
-      { size: "XL", stock: 6 },
-      { size: "XXL", stock: 6 }
-    ],
-    description: "Ensemble hoodie et jogging Syna World Central Cee avec finitions streetwear brodées."
-  },
-  {
-    id: 20,
-    name: "T-Shirt Palm Angels Gothic Logo Black",
-    brand: "Palm Angels",
-    category: "T-Shirts",
-    gender: "Homme",
-    price: 12000,
-    old_price: 14500,
-    image: "/assets/products/p2.png",
-    images: ["/assets/products/p2.png"],
-    sizes: [
-      { size: "S", stock: 6 },
-      { size: "M", stock: 6 },
-      { size: "L", stock: 6 },
-      { size: "XL", stock: 6 },
-      { size: "XXL", stock: 6 }
-    ],
-    description: "T-Shirt oversize avec signature calligraphie gothique Palm Angels au col et au dos."
-  },
-  {
-    id: 19,
-    name: "T-Shirt Streetwear Adidas Trefoil Classic",
-    brand: "Adidas",
-    category: "T-Shirts",
-    gender: "Homme",
-    price: 5500,
-    old_price: 6900,
-    image: "/assets/products/p1.png",
-    images: ["/assets/products/p1.png"],
-    sizes: [
-      { size: "XS", stock: 6 },
-      { size: "S", stock: 6 },
-      { size: "M", stock: 6 },
-      { size: "L", stock: 6 },
-      { size: "XL", stock: 6 },
-      { size: "XXL", stock: 6 }
-    ],
-    description: "T-Shirt 100% coton coupe oversize décontractée et logo iconique Trefoil."
-  },
-  {
-    id: 18,
-    name: "T-Shirt Corteiz Island Alcatraz White",
-    brand: "Corteiz",
-    category: "T-Shirts",
-    gender: "Homme",
-    price: 9500,
-    old_price: 11000,
-    image: "/assets/products/p22.png",
-    images: ["/assets/products/p22.png"],
-    sizes: [
-      { size: "S", stock: 6 },
-      { size: "M", stock: 6 },
-      { size: "L", stock: 6 },
-      { size: "XL", stock: 6 },
-      { size: "XXL", stock: 6 }
-    ],
-    description: "T-Shirt Corteiz Rules The World Alcatraz Island en pur coton lourd peigné."
-  },
-  {
-    id: 17,
-    name: "T-Shirt Trapstar Shooters Black Edition",
-    brand: "Trapstar",
-    category: "T-Shirts",
-    gender: "Homme",
-    price: 8900,
-    old_price: 10500,
-    image: "/assets/products/p21.png",
-    images: ["/assets/products/p21.png"],
-    sizes: [
-      { size: "XS", stock: 6 },
-      { size: "S", stock: 6 },
-      { size: "M", stock: 6 },
-      { size: "L", stock: 6 },
-      { size: "XL", stock: 6 },
-      { size: "XXL", stock: 6 }
-    ],
-    description: "T-Shirt streetwear Trapstar London Shooters en coton épais 240g brodé."
-  },
-  {
-    id: 16,
-    name: "Jordan Sophia Slide Black & Gold",
-    brand: "Jordan",
-    category: "Claquettes",
-    gender: "Homme",
-    price: 12500,
-    old_price: 14500,
-    image: "/assets/products/p20.png",
-    images: ["/assets/products/p20.png"],
-    sizes: [
-      { size: "39", stock: 6 },
-      { size: "40", stock: 6 },
-      { size: "41", stock: 6 },
-      { size: "42", stock: 6 },
-      { size: "43", stock: 6 },
-      { size: "44", stock: 6 },
-      { size: "45", stock: 6 }
-    ],
-    description: "Claquette plateforme Jordan bride croisée satinée avec amorti Air."
-  },
-  {
-    id: 15,
-    name: "Lacoste Croco Slide Vert & Blanc",
-    brand: "Lacoste",
-    category: "Claquettes",
-    gender: "Homme",
-    price: 9800,
-    old_price: 11500,
-    image: "/assets/products/p19.png",
-    images: ["/assets/products/p19.png"],
-    sizes: [
-      { size: "39", stock: 6 },
-      { size: "40", stock: 6 },
-      { size: "41", stock: 6 },
-      { size: "42", stock: 6 },
-      { size: "43", stock: 6 },
-      { size: "44", stock: 6 },
-      { size: "45", stock: 6 }
-    ],
-    description: "Claquette d'été Lacoste Croco Slide avec bride ergonomique matelassée et crocodile embossé."
-  },
-  {
-    id: 14,
-    name: "Yeezy Slide Onyx (Adidas)",
-    brand: "Adidas",
-    category: "Claquettes",
-    gender: "Homme",
-    price: 14900,
-    old_price: 17500,
-    image: "/assets/products/p18.png",
-    images: ["/assets/products/p18.png"],
-    sizes: [
-      { size: "39", stock: 6 },
-      { size: "40", stock: 6 },
-      { size: "41", stock: 6 },
-      { size: "42", stock: 6 },
-      { size: "43", stock: 6 },
-      { size: "44", stock: 6 },
-      { size: "45", stock: 6 }
-    ],
-    description: "Mule Yeezy Slide en mousse EVA injectée injectée, confort maximal et semelle crantée."
-  },
-  {
-    id: 13,
-    name: "Nike Calm Slide Triple Black",
-    brand: "Nike",
-    category: "Claquettes",
-    gender: "Homme",
-    price: 11500,
-    old_price: 13500,
-    image: "/assets/products/p17.png",
-    images: ["/assets/products/p17.png"],
-    sizes: [
-      { size: "39", stock: 6 },
-      { size: "40", stock: 6 },
-      { size: "41", stock: 6 },
-      { size: "42", stock: 6 },
-      { size: "43", stock: 6 },
-      { size: "44", stock: 6 },
-      { size: "45", stock: 6 }
-    ],
-    description: "Claquette Nike Calm Slide en mousse ultra-douce résistante à l'eau."
-  },
-  {
     id: 12,
     name: "Nike Air Max Plus TN Premium Scorpion",
     brand: "Nike",
@@ -2350,9 +2150,23 @@ export default function App() {
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="empty-state">
-                <div>⌕</div>
-                <h3>{t.noProducts}</h3>
-                <p>{t.noProductsHelp}</p>
+                <div style={{ fontSize: '32px', marginBottom: '8px' }}>👟</div>
+                <h3>{selectedCategory !== 'all' ? (lang === 'ar' ? 'لا توجد منتجات حالياً في هذا القسم' : `Aucun article pour l'instant dans cette catégorie`) : t.noProducts}</h3>
+                <p>
+                  {selectedCategory !== 'all'
+                    ? (lang === 'ar' ? 'سيقوم المتجر بإضافة تشكيلات جديدة قريباً، يمكنك استكشاف أحذية TN المتوفرة الآن.' : 'De nouveaux modèles seront ajoutés prochainement. Découvre nos paires de TN en stock !')
+                    : t.noProductsHelp}
+                </p>
+                {selectedCategory !== 'all' && (
+                  <button 
+                    type="button" 
+                    className="btn btn-dark" 
+                    style={{ marginTop: '14px', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                    onClick={() => { setSelectedCategory('all'); setOnlyPromo(false); setSelectedBrands([]); setSelectedSize(''); }}
+                  >
+                    {lang === 'ar' ? 'عرض جميع أحذية TN المتوفرة ←' : 'Voir toutes les paires TN disponibles →'}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="product-grid">
