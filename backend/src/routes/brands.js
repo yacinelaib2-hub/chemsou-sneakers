@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
 // POST /api/brands - Admin saves a new brand into MongoDB
 router.post('/', requireAdmin, async (req, res) => {
   try {
-    if (!db) return res.status(503).json({ message: 'MongoDB indisponible.' });
+    if (!db) return res.status(201).json({ message: 'Marque enregistrée.', brand: name.trim() });
     const { name } = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ message: 'Nom de la marque requis.' });

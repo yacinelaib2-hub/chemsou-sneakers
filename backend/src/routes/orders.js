@@ -20,10 +20,10 @@ const buildIdQuery = (param) => {
   return queries.length === 1 ? queries[0] : { $or: queries };
 };
 
+let standaloneOrders = [];
+
 // Place Order
 router.post('/', optionalAuth, async (req, res) => {
-  if (!db) return res.status(503).json({ message: 'La boutique est temporairement indisponible (MongoDB).' });
-
   // Block owner / admin from ordering on their own shop
   if (req.user && req.user.role === 'admin') {
     return res.status(403).json({
@@ -34,6 +34,30 @@ router.post('/', optionalAuth, async (req, res) => {
   const { customer_name, phone, wilaya, commune, items } = req.body;
   if (!customer_name || !phone || !wilaya || !commune || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: 'Vérifie le nom, le numéro de téléphone, la wilaya, la commune et le panier.' });
+  }
+
+  if (!db) {
+    const orderNumber = 'CS-' + Math.floor(100000 + Math.random() * 900000);
+    const newOrder = {
+      id: Date.now(),
+      order_number: orderNumber,
+      customer_name,
+      phone,
+      wilaya,
+      commune,
+      total: req.body.total || 35000,
+      delivery_fee: 600,
+      status: 'pending',
+      items,
+      created_at: new Date()
+    };
+    standaloneOrders.unshift(newOrder);
+    return res.status(201).json({
+      success: true,
+      order_number: orderNumber,
+      orderId: newOrder.id,
+      total: newOrder.total
+    });
   }
 
   try {
@@ -152,7 +176,7 @@ router.get('/track/:orderNumber', async (req, res) => {
 // Admin: Get all orders from MongoDB
 router.get('/', requireAdmin, async (req, res) => {
   try {
-    if (!db) return res.status(503).json({ message: 'MongoDB indisponible' });
+    if (!db) return res.json(standaloneOrders);
     const ordersCol = db.collection('orders');
     const orders = await ordersCol.find().sort({ created_at: -1 }).toArray();
 

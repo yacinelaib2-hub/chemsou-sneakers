@@ -28,23 +28,10 @@ const applyFlouEdges = async (filePath) => {
 
 const router = Router();
 
-// Configure multer for temporary image uploads before saving to MongoDB
-const tempUploadDir = path.join(__dirname, '../../uploads/temp');
-if (!fs.existsSync(tempUploadDir)) {
-  fs.mkdirSync(tempUploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, tempUploadDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, 'temp-' + Date.now() + '-' + Math.round(Math.random() * 1e6) + ext);
-  }
-});
-
+// Configure multer with memoryStorage for 100% serverless, cloud, and local compatibility
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Format d’image non supporté.'));
@@ -82,11 +69,13 @@ const DEFAULT_PRODUCTS = [
   { id: 1, name: "Nike Air Max Plus TN Triple Black", brand: "Nike", category: "Sneakers", gender: "Homme", price: 34500, old_price: 38000, image: "/assets/products/tn_1.png", sizes: [{ size: "39", stock: 6 }, { size: "40", stock: 6 }, { size: "41", stock: 6 }, { size: "42", stock: 6 }, { size: "43", stock: 6 }, { size: "44", stock: 6 }, { size: "45", stock: 6 }], description: "L'incontournable Requin Triple Black aux nervures TPU ondulées." }
 ];
 
+let standaloneCatalog = [...DEFAULT_PRODUCTS];
+
 // GET all products from MongoDB
 router.get('/', async (req, res) => {
   try {
     if (!db) {
-      return res.json(DEFAULT_PRODUCTS);
+      return res.json(standaloneCatalog);
     }
 
     const productsCol = db.collection('products');
@@ -204,43 +193,24 @@ router.get('/:id', async (req, res) => {
 // POST add product (Admin) - Saves product and picture directly in MongoDB
 router.post('/', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'gallery', maxCount: 5 }]), async (req, res) => {
   try {
-    if (!db) return res.status(503).json({ message: 'MongoDB indisponible.' });
-
     const { name, brand, category, gender, price, old_price, description, sizes } = req.body;
     if (!name || !brand || !price) {
       return res.status(400).json({ message: 'Nom, marque et prix obligatoires.' });
     }
-
-    const productsCol = db.collection('products');
-
-    // Determine highest numeric_id
-    const highest = await productsCol.find().sort({ numeric_id: -1 }).limit(1).toArray();
-    const nextNumericId = (highest.length > 0 && typeof highest[0].numeric_id === 'number') ? highest[0].numeric_id + 1 : Date.now();
 
     let imgBuffer = null;
     let base64 = '';
     let mime = 'image/png';
     let sizeBytes = 0;
 
-    // Process main uploaded picture
+    // Process main uploaded picture (from memory buffer or disk fallback)
     if (req.files?.image?.[0]) {
       const file = req.files.image[0];
-      await applyFlouEdges(file.path);
-
-      if (fs.existsSync(file.path)) {
-        imgBuffer = fs.readFileSync(file.path);
+      imgBuffer = file.buffer || (file.path && fs.existsSync(file.path) ? fs.readFileSync(file.path) : null);
+      if (imgBuffer) {
         base64 = imgBuffer.toString('base64');
         mime = file.mimetype || 'image/png';
         sizeBytes = imgBuffer.length;
-        // Clean up temporary disk file
-        try { fs.unlinkSync(file.path); } catch (e) {}
-      }
-    }
-
-    // If gallery images uploaded, clean up temporary files
-    if (req.files?.gallery) {
-      for (const f of req.files.gallery) {
-        try { fs.unlinkSync(f.path); } catch (e) {}
       }
     }
 
@@ -259,6 +229,38 @@ router.post('/', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }, { 
       const defaultSizes = category === 'Vêtements' ? ['XS', 'S', 'M', 'L', 'XL', 'XXL'] : ['39', '40', '41', '42', '43', '44', '45'];
       parsedSizes = defaultSizes.map(s => ({ size: String(s), stock: 6 }));
     }
+
+    // If standalone / no MongoDB connection available
+    if (!db) {
+      const fallbackId = Date.now();
+      const dataUri = base64 ? `data:${mime};base64,${base64}` : '/assets/placeholder.png';
+      const fallbackProduct = {
+        id: fallbackId,
+        numeric_id: fallbackId,
+        name: name.trim(),
+        brand: brand.trim(),
+        category: category || 'Sneakers',
+        gender: gender || 'Homme',
+        price: parseFloat(price),
+        old_price: old_price ? parseFloat(old_price) : null,
+        description: description || '',
+        image: dataUri,
+        images: [dataUri],
+        sizes: parsedSizes,
+        created_at: new Date()
+      };
+      standaloneCatalog.unshift(fallbackProduct);
+      return res.status(201).json({
+        message: 'Produit et image enregistrés avec succès !',
+        product: fallbackProduct
+      });
+    }
+
+    const productsCol = db.collection('products');
+
+    // Determine highest numeric_id
+    const highest = await productsCol.find().sort({ numeric_id: -1 }).limit(1).toArray();
+    const nextNumericId = (highest.length > 0 && typeof highest[0].numeric_id === 'number') ? highest[0].numeric_id + 1 : Date.now();
 
     // Auto-save brand into MongoDB brands collection so admin can reuse it
     if (brand && brand.trim()) {
@@ -313,7 +315,37 @@ router.post('/', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }, { 
 // PUT update product (Admin) - Updates price, promo, photo, sizes, and details in MongoDB
 router.put('/:id', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }]), async (req, res) => {
   try {
-    if (!db) return res.status(503).json({ message: 'MongoDB indisponible.' });
+    const { name, brand, category, gender, price, old_price, description, sizes } = req.body;
+
+    if (!db) {
+      const pid = Number(req.params.id);
+      const prod = standaloneCatalog.find(p => p.id === pid || p.numeric_id === pid || String(p._id) === req.params.id);
+      if (!prod) return res.status(404).json({ message: 'Article non trouvé.' });
+
+      if (name) prod.name = name.trim();
+      if (brand) prod.brand = brand.trim();
+      if (category) prod.category = category;
+      if (gender) prod.gender = gender;
+      if (description !== undefined) prod.description = description;
+      if (price !== undefined && price !== '') prod.price = parseFloat(price);
+      if (old_price !== undefined) prod.old_price = (old_price !== '' && old_price !== null) ? parseFloat(old_price) : null;
+      if (sizes) {
+        let parsed = [];
+        try { parsed = typeof sizes === 'string' ? JSON.parse(sizes) : sizes; } catch(e) {
+          if (typeof sizes === 'string') parsed = sizes.split(',').map(s => ({ size: s.trim(), stock: 6 }));
+        }
+        if (Array.isArray(parsed) && parsed.length > 0) prod.sizes = parsed;
+      }
+      if (req.files?.image?.[0]) {
+        const file = req.files.image[0];
+        const buf = file.buffer || (file.path && fs.existsSync(file.path) ? fs.readFileSync(file.path) : null);
+        if (buf) {
+          prod.image = `data:${file.mimetype || 'image/png'};base64,${buf.toString('base64')}`;
+          prod.images = [prod.image];
+        }
+      }
+      return res.json({ success: true, product: prod });
+    }
 
     const productsCol = db.collection('products');
     const query = buildIdQuery(req.params.id);
@@ -431,11 +463,26 @@ router.put('/:id', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }])
 // PATCH toggle or update size stock (Admin) - fast 1-click "khlass / disponible" toggle
 router.patch('/:id/toggle-size', requireAdmin, async (req, res) => {
   try {
-    if (!db) return res.status(503).json({ message: 'MongoDB indisponible.' });
-
     const { size, stock } = req.body;
     if (!size) {
       return res.status(400).json({ message: 'Pointure obligatoire.' });
+    }
+
+    if (!db) {
+      const pid = Number(req.params.id);
+      const prod = standaloneCatalog.find(p => p.id === pid || p.numeric_id === pid || String(p._id) === req.params.id);
+      if (!prod) return res.status(404).json({ message: 'Article non trouvé.' });
+
+      const sizeStr = String(size).trim();
+      if (!Array.isArray(prod.sizes)) prod.sizes = [];
+      const idx = prod.sizes.findIndex(s => String(s.size).trim() === sizeStr);
+      const newStock = stock !== undefined ? Math.max(0, parseInt(stock, 10) || 0) : ((idx >= 0 && prod.sizes[idx].stock > 0) ? 0 : 6);
+      if (idx >= 0) {
+        prod.sizes[idx].stock = newStock;
+      } else {
+        prod.sizes.push({ size: sizeStr, stock: newStock });
+      }
+      return res.json({ success: true, sizes: prod.sizes, isAvailable: newStock > 0 });
     }
 
     const productsCol = db.collection('products');
@@ -491,7 +538,11 @@ router.patch('/:id/toggle-size', requireAdmin, async (req, res) => {
 // DELETE product (Admin) - Removes product and picture completely from MongoDB
 router.delete('/:id', requireAdmin, async (req, res) => {
   try {
-    if (!db) return res.status(503).json({ message: 'MongoDB indisponible.' });
+    if (!db) {
+      const pid = Number(req.params.id);
+      standaloneCatalog = standaloneCatalog.filter(p => p.id !== pid && p.numeric_id !== pid && String(p._id) !== req.params.id);
+      return res.json({ success: true, message: 'Article supprimé.' });
+    }
 
     const productsCol = db.collection('products');
     const query = buildIdQuery(req.params.id);

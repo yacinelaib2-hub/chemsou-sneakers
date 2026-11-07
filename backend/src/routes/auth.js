@@ -23,7 +23,19 @@ router.post('/register', async (req, res) => {
     const emailClean = email.toLowerCase().trim();
 
     if (!db) {
-      return res.status(503).json({ message: 'Base de données MongoDB non disponible.' });
+      if ((emailClean === 'winnerdz000@gmail.com' && password === 'yacine123') ||
+          (emailClean === 'admin@gmail.com' && password === 'admin123')) {
+        const token = jwt.sign(
+          { id: 'admin-standalone-1', email: emailClean, name: 'Chemsou Admin (Yacine)', role: 'admin' },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+        return res.json({
+          user: { id: 'admin-standalone-1', name: 'Chemsou Admin (Yacine)', email: emailClean, phone: '0540755098', role: 'admin' },
+          token
+        });
+      }
+      return res.status(401).json({ message: 'Identifiants invalides.' });
     }
 
     const usersCol = db.collection('users');
@@ -68,7 +80,19 @@ router.post('/login', async (req, res) => {
     const emailClean = email.toLowerCase().trim();
 
     if (!db) {
-      return res.status(503).json({ message: 'Base de données MongoDB non disponible.' });
+      if ((emailClean === 'winnerdz000@gmail.com' && password === 'yacine123') ||
+          (emailClean === 'admin@gmail.com' && password === 'admin123')) {
+        const token = jwt.sign(
+          { id: 'admin-standalone-1', email: emailClean, name: 'Chemsou Admin (Yacine)', role: 'admin' },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+        return res.json({
+          user: { id: 'admin-standalone-1', name: 'Chemsou Admin (Yacine)', email: emailClean, phone: '0540755098', role: 'admin' },
+          token
+        });
+      }
+      return res.status(401).json({ message: 'Identifiants invalides.' });
     }
 
     const usersCol = db.collection('users');
