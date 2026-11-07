@@ -358,8 +358,6 @@ router.put('/:id', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }])
     const pid = existingProduct.numeric_id !== undefined ? existingProduct.numeric_id : existingProduct._id.toString();
     const updateDoc = {};
 
-    const { name, brand, category, gender, price, old_price, description, sizes } = req.body;
-
     if (name) updateDoc.name = name.trim();
     if (brand) {
       updateDoc.brand = brand.trim();
