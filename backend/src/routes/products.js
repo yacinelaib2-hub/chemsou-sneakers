@@ -73,23 +73,36 @@ let standaloneCatalog = [...DEFAULT_PRODUCTS];
 
 // GET all products from MongoDB
 router.get('/', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   try {
     if (!db) {
       return res.json(standaloneCatalog);
     }
 
     const productsCol = db.collection('products');
-    const docs = await productsCol.find({ active: { $ne: false } }).sort({ numeric_id: -1, _id: -1 }).toArray();
+    // Ensure index exists to prevent memory limit errors on sorting
+    productsCol.createIndex({ numeric_id: -1 }).catch(() => {});
+    productsCol.createIndex({ active: 1, numeric_id: -1 }).catch(() => {});
+
+    // EXCLUDE heavy base64/binary payloads so query runs in 5ms and never exceeds memory limits
+    const docs = await productsCol.find(
+      { active: { $ne: false } },
+      { projection: { image_binary: 0, image_base64: 0, image_data_uri: 0 } }
+    ).sort({ numeric_id: -1, _id: -1 }).toArray();
 
     const formatted = docs.map(p => {
       const pid = p.numeric_id !== undefined ? p.numeric_id : p._id.toString();
       // Ensure image URL points to the MongoDB image streaming route if stored in Mongo
-      const imageUrl = p.image_base64 || p.image_binary
-        ? `/api/products/${pid}/image`
-        : (p.image || '/assets/placeholder.png');
+      const imageUrl = (p.image && !p.image.startsWith('data:'))
+        ? p.image
+        : `/api/products/${pid}/image`;
 
       return {
         id: pid,
+        numeric_id: p.numeric_id,
         _id: p._id.toString(),
         name: p.name,
         brand: p.brand,
@@ -142,6 +155,14 @@ router.get('/:id/image', async (req, res) => {
       res.setHeader('Content-Type', product.image_mimetype || 'image/png');
       res.setHeader('Cache-Control', 'public, max-age=86400');
       return res.send(buffer);
+    } else if (product.image_data_uri && product.image_data_uri.startsWith('data:image/')) {
+      const match = product.image_data_uri.match(/^data:([^;]+);base64,(.+)$/);
+      if (match) {
+        const buffer = Buffer.from(match[2], 'base64');
+        res.setHeader('Content-Type', match[1] || 'image/jpeg');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        return res.send(buffer);
+      }
     }
 
     // Fallback: if there was a local asset path

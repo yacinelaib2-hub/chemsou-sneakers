@@ -581,7 +581,7 @@ export default function App() {
   // Fetch Products & auto-sync any local unsynced articles to MongoDB Atlas
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch(`/api/products?_t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const ct = res.headers.get('content-type');
         if (ct && ct.includes('application/json')) {
@@ -3200,24 +3200,39 @@ export default function App() {
               <h2>CHEMSOU SNEAKERS — ADMIN</h2>
               <p style={{ color: '#777', fontSize: '13px' }}>Gestion des commandes & articles</p>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button 
+                type="button"
                 className={`brand-chip ${adminTab === 'orders' ? 'active' : ''}`}
+                style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '700', borderRadius: '20px', cursor: 'pointer' }}
                 onClick={() => setAdminTab('orders')}
               >
-                Commandes ({adminOrders.length})
+                📦 Commandes ({adminOrders.length})
               </button>
               <button 
+                type="button"
                 className={`brand-chip ${adminTab === 'products' ? 'active' : ''}`}
+                style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '700', borderRadius: '20px', cursor: 'pointer' }}
                 onClick={() => setAdminTab('products')}
               >
-                Articles ({products.length})
+                👟 Articles ({products.length})
               </button>
               <button 
+                type="button"
                 className={`brand-chip ${adminTab === 'new' ? 'active' : ''}`}
+                style={{
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  borderRadius: '20px',
+                  background: adminTab === 'new' ? '#e60000' : '#f0f0f0',
+                  color: adminTab === 'new' ? '#fff' : '#111',
+                  border: adminTab === 'new' ? '1px solid #e60000' : '1px solid #ddd',
+                  cursor: 'pointer'
+                }}
                 onClick={() => setAdminTab('new')}
               >
-                + Ajouter un article
+                ➕ Ajouter un article
               </button>
             </div>
           </div>
@@ -3299,25 +3314,26 @@ export default function App() {
                   return (
                     <div 
                       key={p.id} 
+                      className="admin-product-row"
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '72px 1fr auto',
+                        gridTemplateColumns: isMobile ? '60px 1fr' : '72px 1fr auto',
                         alignItems: 'center',
-                        gap: '16px',
-                        padding: '12px 16px',
+                        gap: isMobile ? '10px' : '16px',
+                        padding: isMobile ? '10px 12px' : '12px 16px',
                         background: '#ffffff',
                         border: '1px solid #eee',
-                        borderRadius: '8px',
+                        borderRadius: '10px',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                       }}
                     >
-                      <div style={{ width: '72px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa', borderRadius: '10px' }}>
+                      <div style={{ width: isMobile ? '60px' : '72px', height: isMobile ? '60px' : '72px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa', borderRadius: '10px' }}>
                         <img 
                           src={formatImg(p.image || (p.images && p.images[0]))} 
                           alt={p.name}
                           style={{
-                            width: '68px',
-                            height: '68px',
+                            width: isMobile ? '56px' : '68px',
+                            height: isMobile ? '56px' : '68px',
                             objectFit: 'contain',
                             mixBlendMode: 'multiply',
                             maskImage: 'radial-gradient(ellipse 85% 80% at 50% 50%, #000 45%, rgba(0,0,0,0.6) 70%, transparent 92%)',
@@ -3332,8 +3348,8 @@ export default function App() {
                           <span style={{ fontSize: '11px', fontWeight: '800', color: '#e60000', textTransform: 'uppercase' }}>{p.brand}</span>
                           <span style={{ fontSize: '11px', color: '#888' }}>· {p.category}</span>
                         </div>
-                        <h4 style={{ margin: '2px 0 6px', fontSize: '15px', fontWeight: '800', color: '#111' }}>{p.name}</h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px' }}>
+                        <h4 style={{ margin: '2px 0 6px', fontSize: isMobile ? '13px' : '15px', fontWeight: '800', color: '#111' }}>{p.name}</h4>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', flexWrap: 'wrap' }}>
                           <strong style={{ color: '#111' }}>{formatPrice(p.price)}</strong>
                           {p.old_price && Number(p.old_price) > Number(p.price) && (
                             <del style={{ color: '#999', fontSize: '12px' }}>{formatPrice(p.old_price)}</del>
@@ -3351,11 +3367,26 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{
+                        display: 'flex',
+                        gap: '8px',
+                        gridColumn: isMobile ? '1 / -1' : 'auto',
+                        width: isMobile ? '100%' : 'auto',
+                        marginTop: isMobile ? '6px' : '0'
+                      }}>
                         <button 
                           type="button"
                           className="btn btn-dark"
-                          style={{ padding: '6px 12px', fontSize: '11px', background: '#111', color: '#fff', border: '1px solid #111' }}
+                          style={{
+                            flex: isMobile ? 1 : 'initial',
+                            padding: '7px 12px',
+                            fontSize: '11px',
+                            background: '#111',
+                            color: '#fff',
+                            border: '1px solid #111',
+                            borderRadius: '6px',
+                            cursor: 'pointer'
+                          }}
                           onClick={() => {
                             setIsAdminOpen(false);
                             openProductModal(p);
@@ -3366,7 +3397,16 @@ export default function App() {
                         <button 
                           type="button"
                           className="btn btn-light"
-                          style={{ padding: '6px 12px', fontSize: '11px', border: '1px solid #dc3545', color: '#dc3545', background: '#fff5f5' }}
+                          style={{
+                            flex: isMobile ? 1 : 'initial',
+                            padding: '7px 12px',
+                            fontSize: '11px',
+                            border: '1px solid #dc3545',
+                            color: '#dc3545',
+                            background: '#fff5f5',
+                            borderRadius: '6px',
+                            cursor: 'pointer'
+                          }}
                           onClick={() => handleDeleteProduct(p.id, p.name)}
                           title="Supprimer définitivement de MongoDB"
                         >
