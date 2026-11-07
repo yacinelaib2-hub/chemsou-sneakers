@@ -203,13 +203,21 @@ router.post('/', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }, { 
     let mime = 'image/png';
     let sizeBytes = 0;
 
-    // Process main uploaded picture (from memory buffer or disk fallback)
+    // Process main uploaded picture (from memory buffer, disk fallback, or body base64 DataURL)
     if (req.files?.image?.[0]) {
       const file = req.files.image[0];
       imgBuffer = file.buffer || (file.path && fs.existsSync(file.path) ? fs.readFileSync(file.path) : null);
       if (imgBuffer) {
         base64 = imgBuffer.toString('base64');
         mime = file.mimetype || 'image/png';
+        sizeBytes = imgBuffer.length;
+      }
+    } else if (req.body.image && typeof req.body.image === 'string' && req.body.image.startsWith('data:image/')) {
+      const match = req.body.image.match(/^data:([^;]+);base64,(.+)$/);
+      if (match) {
+        mime = match[1];
+        base64 = match[2];
+        imgBuffer = Buffer.from(base64, 'base64');
         sizeBytes = imgBuffer.length;
       }
     }
@@ -418,13 +426,11 @@ router.put('/:id', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }])
       }
     }
 
-    // Process new image upload if provided
+    // Process new image upload if provided (memory buffer, disk path, or base64 DataURL)
     if (req.files?.image?.[0]) {
       const file = req.files.image[0];
-      await applyFlouEdges(file.path);
-
-      if (fs.existsSync(file.path)) {
-        const imgBuffer = fs.readFileSync(file.path);
+      const imgBuffer = file.buffer || (file.path && fs.existsSync(file.path) ? fs.readFileSync(file.path) : null);
+      if (imgBuffer) {
         const base64 = imgBuffer.toString('base64');
         const mime = file.mimetype || 'image/png';
         const sizeBytes = imgBuffer.length;
@@ -436,8 +442,20 @@ router.put('/:id', requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }])
         updateDoc.image_data_uri = `data:${mime};base64,${base64}`;
         updateDoc.image = `/api/products/${pid}/image`;
         updateDoc.images = [`/api/products/${pid}/image`];
-
-        try { fs.unlinkSync(file.path); } catch (e) {}
+      }
+    } else if (req.body.image && typeof req.body.image === 'string' && req.body.image.startsWith('data:image/')) {
+      const match = req.body.image.match(/^data:([^;]+);base64,(.+)$/);
+      if (match) {
+        const mime = match[1];
+        const base64 = match[2];
+        const imgBuffer = Buffer.from(base64, 'base64');
+        updateDoc.image_binary = new Binary(imgBuffer);
+        updateDoc.image_base64 = base64;
+        updateDoc.image_mimetype = mime;
+        updateDoc.image_size_bytes = imgBuffer.length;
+        updateDoc.image_data_uri = req.body.image;
+        updateDoc.image = `/api/products/${pid}/image`;
+        updateDoc.images = [`/api/products/${pid}/image`];
       }
     }
 

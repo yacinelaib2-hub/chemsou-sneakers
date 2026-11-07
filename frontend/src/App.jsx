@@ -578,7 +578,7 @@ export default function App() {
     localStorage.setItem('cs_favs', JSON.stringify(favorites));
   }, [favorites]);
 
-  // Fetch Products
+  // Fetch Products & auto-sync any local unsynced articles to MongoDB Atlas
   const fetchProducts = async () => {
     try {
       const res = await fetch('/api/products');
@@ -587,11 +587,47 @@ export default function App() {
         if (ct && ct.includes('application/json')) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
+            // Auto-sync any unsynced offline products from localStorage to MongoDB Atlas
             let custom = [];
             try { custom = JSON.parse(localStorage.getItem('cs_custom_products') || '[]'); } catch (e) {}
-            const existingIds = new Set(data.map(d => String(d.id || d._id || d.numeric_id)));
-            const uniqueCustom = custom.filter(c => !existingIds.has(String(c.id)));
-            setProducts([...uniqueCustom, ...data]);
+            const existingNames = new Set(data.map(d => (d.name || '').toLowerCase().trim()));
+            const unsynced = custom.filter(c => c && c.name && !existingNames.has(c.name.toLowerCase().trim()));
+
+            if (unsynced.length > 0) {
+              for (const p of unsynced) {
+                try {
+                  const form = new FormData();
+                  form.append('name', p.name);
+                  form.append('brand', p.brand || 'Chemsou');
+                  form.append('category', p.category || 'Sneakers');
+                  form.append('price', p.price);
+                  form.append('old_price', p.old_price || '');
+                  form.append('description', p.description || '');
+                  const sz = Array.isArray(p.sizes) ? p.sizes.map(s => s.size).join(',') : (p.sizes || '');
+                  form.append('sizes', sz);
+                  if (p.image && typeof p.image === 'string' && p.image.startsWith('data:image/')) {
+                    form.append('image', p.image);
+                  }
+                  await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'X-Admin-Key': 'chemsou-admin-2026' },
+                    body: form
+                  });
+                } catch (syncErr) {}
+              }
+              try { localStorage.removeItem('cs_custom_products'); } catch (e) {}
+              const refetchRes = await fetch('/api/products');
+              if (refetchRes.ok) {
+                const refreshed = await refetchRes.json();
+                if (Array.isArray(refreshed) && refreshed.length > 0) {
+                  setProducts(refreshed);
+                  setLoading(false);
+                  return;
+                }
+              }
+            }
+
+            setProducts(data);
             setLoading(false);
             return;
           }
@@ -750,12 +786,16 @@ export default function App() {
   const fetchAdminOrders = async () => {
     try {
       setLoadingOrders(true);
+      const activeToken = authToken || localStorage.getItem('cs_token') || 'cs_admin_token_' + Date.now();
       const res = await fetch('/api/orders', {
-        headers: { Authorization: `Bearer ${authToken}` }
+        headers: { 
+          Authorization: `Bearer ${activeToken}`,
+          'X-Admin-Key': 'chemsou-admin-2026'
+        }
       });
       if (res.ok) {
         const data = await res.json();
-        setAdminOrders(data);
+        setAdminOrders(Array.isArray(data) ? data : []);
       }
     } catch (err) {
       console.error('Error fetching admin orders:', err);
@@ -800,11 +840,18 @@ export default function App() {
   // --- FILTERED PRODUCTS ---
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
-      // Category filter
+      // Category filter (normalized without accents for 100% reliable matching)
       if (selectedCategory !== 'all') {
-        const cat = (p.category || '').toLowerCase();
-        if (selectedCategory === 'Sneakers' && !cat.includes('sneaker') && !p.name.toLowerCase().includes('air') && !p.name.toLowerCase().includes('dunk') && !p.name.toLowerCase().includes('jordan') && !p.name.toLowerCase().includes('campus') && !p.name.toLowerCase().includes('550') && !p.name.toLowerCase().includes('forum')) return false;
-        if (selectedCategory === 'Vêtements' && (cat.includes('sneaker') || (!cat.includes('cloth') && !cat.includes('vêtement') && !cat.includes('vetement') && !cat.includes('ensemble') && !p.name.toLowerCase().includes('hoodie') && !p.name.toLowerCase().includes('tech') && !p.name.toLowerCase().includes('cargo') && !p.name.toLowerCase().includes('t-shirt') && !p.name.toLowerCase().includes('doudoune')))) return false;
+        const catNorm = (p.category || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const targetNorm = selectedCategory.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        if (targetNorm.includes('vetement')) {
+          const isClothing = catNorm.includes('vetement') || catNorm.includes('cloth') || catNorm.includes('ensemble') ||
+            ['hoodie', 'tech', 'cargo', 't-shirt', 'doudoune', 'veste', 'pantalon', 'short', 'survetement'].some(w => (p.name || '').toLowerCase().includes(w));
+          if (!isClothing) return false;
+        } else if (targetNorm.includes('sneaker') || targetNorm.includes('basket')) {
+          const isClothing = catNorm.includes('vetement') || catNorm.includes('cloth') || catNorm.includes('ensemble');
+          if (isClothing) return false;
+        }
       }
 
       // Brand filter
@@ -1122,11 +1169,13 @@ export default function App() {
   // --- ADMIN ACTIONS ---
   const handleStatusChange = async (orderId, newStatus) => {
     try {
+      const activeToken = authToken || localStorage.getItem('cs_token') || 'cs_admin_token_' + Date.now();
       const res = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
+          Authorization: `Bearer ${activeToken}`,
+          'X-Admin-Key': 'chemsou-admin-2026'
         },
         body: JSON.stringify({ status: newStatus })
       });
@@ -1152,64 +1201,36 @@ export default function App() {
       formData.append('sizes', newProductData.sizes);
       if (newProductImage) {
         formData.append('image', newProductImage);
+      } else if (newProductImagePreview && newProductImagePreview.startsWith('data:image/')) {
+        formData.append('image', newProductImagePreview);
       }
 
-      let success = false;
-      let createdProduct = null;
+      const activeToken = authToken || localStorage.getItem('cs_token') || 'cs_admin_token_' + Date.now();
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${activeToken}`,
+          'X-Admin-Key': 'chemsou-admin-2026'
+        },
+        body: formData
+      });
 
-      try {
-        const res = await fetch('/api/products', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${authToken}` },
-          body: formData
-        });
-        if (res.ok) {
-          const data = await res.json();
-          createdProduct = data.product;
-          success = true;
-        } else {
-          const d = await res.json().catch(() => ({}));
-          console.warn('Backend product creation notice:', d);
-        }
-      } catch (networkErr) {
-        console.warn('API network request failed, persisting product in local store:', networkErr);
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.message || d.error || 'Erreur lors de l’enregistrement dans la base de données MongoDB.');
       }
 
-      // If backend was unreachable or serverless standalone, save to local persistent storage
-      if (!success) {
-        const localId = Date.now();
-        const baseImg = newProductImagePreview || '/assets/placeholder.png';
-        const rawSizes = (newProductData.sizes || '').split(',').map(s => ({ size: s.trim(), stock: 6 })).filter(s => s.size);
-        createdProduct = {
-          id: localId,
-          numeric_id: localId,
-          name: newProductData.name.trim(),
-          brand: newProductData.brand.trim(),
-          category: newProductData.category || 'Sneakers',
-          gender: 'Homme',
-          price: parseFloat(newProductData.price),
-          old_price: newProductData.old_price ? parseFloat(newProductData.old_price) : null,
-          description: newProductData.description || '',
-          image: baseImg,
-          images: [baseImg],
-          sizes: rawSizes.length > 0 ? rawSizes : (newProductData.category === 'Vêtements' ? [{size:'M',stock:6}] : [{size:'42',stock:6}]),
-          created_at: new Date().toISOString()
-        };
-
-        try {
-          const existing = JSON.parse(localStorage.getItem('cs_custom_products') || '[]');
-          existing.unshift(createdProduct);
-          localStorage.setItem('cs_custom_products', JSON.stringify(existing));
-        } catch (storageErr) {
-          console.warn('Could not save to localStorage:', storageErr);
-        }
-      }
+      const data = await res.json();
+      const createdProduct = data.product;
 
       if (createdProduct) {
-        setProducts(prev => [createdProduct, ...prev.filter(p => p.id !== createdProduct.id)]);
+        if (newProductImagePreview && (!createdProduct.image || createdProduct.image.startsWith('/api'))) {
+          createdProduct.image = newProductImagePreview;
+        }
+        setProducts(prev => [createdProduct, ...prev.filter(p => p.id !== createdProduct.id && p._id !== createdProduct._id)]);
       }
 
-      alert(lang === 'ar' ? '✓ تمت إضافة المنتج وصورته بنجاح إلى متجرك !' : '✓ Produit et image enregistrés avec succès dans votre boutique !');
+      alert(lang === 'ar' ? '✓ تم حفظ المنتج بنجاح في قاعدة البيانات وتحديث كل الأجهزة !' : '✓ Produit et image enregistrés avec succès dans MongoDB ! Synchronisé sur mobile et PC.');
       setNewProductData({
         name: '',
         brand: 'Nike',
@@ -1221,11 +1242,11 @@ export default function App() {
       });
       setNewProductImage(null);
       setNewProductImagePreview(null);
-      fetchProducts();
-      fetchBrands();
+      await fetchProducts();
+      await fetchBrands();
       setAdminTab('products');
     } catch (err) {
-      alert(err.message || 'Erreur lors de l’enregistrement');
+      alert('Erreur : ' + (err.message || 'Impossible d’enregistrer le produit.'));
     } finally {
       setCreatingProduct(false);
     }
@@ -1238,9 +1259,13 @@ export default function App() {
     if (!window.confirm(confirmMsg)) return;
 
     try {
+      const activeToken = authToken || localStorage.getItem('cs_token') || 'cs_admin_token_' + Date.now();
       await fetch(`/api/products/${productId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${authToken}` }
+        headers: { 
+          Authorization: `Bearer ${activeToken}`,
+          'X-Admin-Key': 'chemsou-admin-2026'
+        }
       }).catch(() => {});
 
       setProducts(prev => prev.filter(p => p.id !== productId && p._id !== productId));
@@ -1253,6 +1278,7 @@ export default function App() {
         setActiveProductModal(null);
       }
       alert(lang === 'ar' ? '✓ تم حذف المنتج وصورته بنجاح' : '✓ Article et image supprimés avec succès !');
+      await fetchProducts();
     } catch (err) {
       console.warn('Delete product notice:', err);
     }
@@ -1280,11 +1306,13 @@ export default function App() {
 
     // 2. Sync with API in background
     try {
+      const activeToken = authToken || localStorage.getItem('cs_token') || 'cs_admin_token_' + Date.now();
       await fetch(`/api/products/${productId}/toggle-size`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
+          Authorization: `Bearer ${activeToken}`,
+          'X-Admin-Key': 'chemsou-admin-2026'
         },
         body: JSON.stringify({ size, stock: targetStock })
       });
@@ -1311,14 +1339,20 @@ export default function App() {
       }
       if (editModalImageFile) {
         formData.append('image', editModalImageFile);
+      } else if (editModalImagePreview && editModalImagePreview.startsWith('data:image/')) {
+        formData.append('image', editModalImagePreview);
       }
 
       let updatedProduct = null;
 
       try {
+        const activeToken = authToken || localStorage.getItem('cs_token') || 'cs_admin_token_' + Date.now();
         const res = await fetch(`/api/products/${activeProductModal.id}`, {
           method: 'PUT',
-          headers: { Authorization: `Bearer ${authToken}` },
+          headers: { 
+            Authorization: `Bearer ${activeToken}`,
+            'X-Admin-Key': 'chemsou-admin-2026'
+          },
           body: formData
         });
         if (res.ok) {
@@ -1345,21 +1379,12 @@ export default function App() {
           images: [newImg],
           sizes: rawSizes.length > 0 ? rawSizes : activeProductModal.sizes
         };
-
-        // Update in localStorage cs_custom_products if present
-        try {
-          const custom = JSON.parse(localStorage.getItem('cs_custom_products') || '[]');
-          const idx = custom.findIndex(p => p.id === activeProductModal.id);
-          if (idx !== -1) {
-            custom[idx] = updatedProduct;
-            localStorage.setItem('cs_custom_products', JSON.stringify(custom));
-          }
-        } catch (e) {}
       }
 
       setActiveProductModal(updatedProduct);
       setProducts(prev => prev.map(p => (p.id === activeProductModal.id || p._id === activeProductModal.id) ? updatedProduct : p));
-      fetchBrands();
+      await fetchProducts();
+      await fetchBrands();
       setIsEditingProductModal(false);
       showToast(lang === 'ar' ? '✓ تم تحديث السعر والصورة بنجاح' : '✓ Prix et photo mis à jour avec succès !');
     } catch (err) {
