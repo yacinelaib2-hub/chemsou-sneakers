@@ -354,6 +354,7 @@ export default function App() {
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   // Product Modal Admin Editing State
   const [isEditingProductModal, setIsEditingProductModal] = useState(false);
@@ -790,6 +791,23 @@ export default function App() {
     setSelectedBrands(prev => 
       prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
     );
+  };
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategory !== 'all') count++;
+    if (selectedBrands.length > 0) count += selectedBrands.length;
+    if (selectedSize) count++;
+    if (onlyPromo) count++;
+    return count;
+  }, [selectedCategory, selectedBrands, selectedSize, onlyPromo]);
+
+  const resetAllFilters = () => {
+    setSelectedCategory('all');
+    setSelectedBrands([]);
+    setSelectedSize('');
+    setOnlyPromo(false);
+    setSortBy('new');
   };
 
   // --- CART FUNCTIONS ---
@@ -1599,7 +1617,7 @@ export default function App() {
             <p className="eyebrow">NOTRE SÉLECTION</p>
             <h2>Nouveautés & Tendances</h2>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="desktop-category-chips" style={{ display: 'flex', gap: '8px' }}>
             <button 
               className={`brand-chip ${selectedCategory === 'Sneakers' ? 'active' : ''}`}
               onClick={() => {
@@ -1621,9 +1639,130 @@ export default function App() {
           </div>
         </div>
 
+        {/* MOBILE FILTER & SORT BAR (Compact 1-row toolbar on mobile, zero vertical clutter) */}
+        <div className="mobile-filter-bar">
+          <button 
+            type="button" 
+            className={`mobile-filter-trigger-btn ${activeFilterCount > 0 ? 'has-active' : ''}`}
+            onClick={() => setIsMobileFilterOpen(true)}
+            aria-label="Ouvrir les filtres et marques"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            <span>{lang === 'ar' ? 'الفلاتر' : 'Filtres'}</span>
+            {activeFilterCount > 0 && (
+              <span className="mobile-filter-badge">{activeFilterCount}</span>
+            )}
+          </button>
+
+          <div className="mobile-quick-cats">
+            <button
+              type="button"
+              className={`mobile-quick-chip ${selectedCategory === 'all' && !onlyPromo ? 'active' : ''}`}
+              onClick={() => { setSelectedCategory('all'); setOnlyPromo(false); }}
+            >
+              {lang === 'ar' ? 'الكل' : 'Tous'}
+            </button>
+            <button
+              type="button"
+              className={`mobile-quick-chip ${selectedCategory === 'Sneakers' ? 'active' : ''}`}
+              onClick={() => { setSelectedCategory(selectedCategory === 'Sneakers' ? 'all' : 'Sneakers'); setOnlyPromo(false); }}
+            >
+              👟 {lang === 'ar' ? 'أحذية' : 'Baskets'}
+            </button>
+            <button
+              type="button"
+              className={`mobile-quick-chip ${selectedCategory === 'Vêtements' ? 'active' : ''}`}
+              onClick={() => { setSelectedCategory(selectedCategory === 'Vêtements' ? 'all' : 'Vêtements'); setOnlyPromo(false); }}
+            >
+              👕 {lang === 'ar' ? 'ملابس' : 'Vêtements'}
+            </button>
+            <button
+              type="button"
+              className={`mobile-quick-chip promo-chip ${onlyPromo ? 'active' : ''}`}
+              onClick={() => setOnlyPromo(!onlyPromo)}
+            >
+              🔥 {lang === 'ar' ? 'تخفيضات' : 'Promos'}
+            </button>
+          </div>
+
+          <div className="mobile-sort-wrapper">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="mobile-sort-select"
+              aria-label="Trier les articles"
+            >
+              <option value="new">⚡ {t.sortNew}</option>
+              <option value="low">↓ {t.sortPriceLow}</option>
+              <option value="high">↑ {t.sortPriceHigh}</option>
+              <option value="name">A-Z</option>
+            </select>
+          </div>
+        </div>
+
+        {/* ACTIVE FILTER BADGES (Removable pills right above product grid) */}
+        {activeFilterCount > 0 && (
+          <div className="active-filters-strip">
+            {selectedCategory !== 'all' && (
+              <button 
+                type="button" 
+                className="active-filter-tag" 
+                onClick={() => setSelectedCategory('all')}
+              >
+                {selectedCategory === 'Sneakers' ? (lang === 'ar' ? 'أحذية' : 'Baskets') : (lang === 'ar' ? 'ملابس' : 'Vêtements')} ×
+              </button>
+            )}
+            {onlyPromo && (
+              <button 
+                type="button" 
+                className="active-filter-tag promo-tag" 
+                onClick={() => setOnlyPromo(false)}
+              >
+                Promos 🔥 ×
+              </button>
+            )}
+            {selectedBrands.map(b => (
+              <button 
+                key={b} 
+                type="button" 
+                className="active-filter-tag" 
+                onClick={() => toggleBrandFilter(b)}
+              >
+                {b} ×
+              </button>
+            ))}
+            {selectedSize && (
+              <button 
+                type="button" 
+                className="active-filter-tag" 
+                onClick={() => setSelectedSize('')}
+              >
+                Taille: {selectedSize} ×
+              </button>
+            )}
+            <button 
+              type="button" 
+              className="clear-filters-link" 
+              onClick={resetAllFilters}
+            >
+              {lang === 'ar' ? 'مسح الكل' : 'Effacer tout'}
+            </button>
+          </div>
+        )}
+
         <div className="shop-layout">
-          {/* Filters Sidebar */}
-          <aside className="filters">
+          {/* Filters Sidebar (DESKTOP ONLY: strictly hidden on mobile) */}
+          <aside className="filters desktop-filters">
             <div className="filter-block">
               <h3>Catégorie</h3>
               <label>
@@ -3376,6 +3515,216 @@ export default function App() {
             <button type="button" className="btn btn-dark" style={{ width: '100%', marginTop: '14px', height: '44px' }} onClick={() => setShowIOSInstallGuide(false)}>
               {lang === 'ar' ? 'حسناً، فهمت' : 'Compris !'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE FILTER BOTTOM SHEET DRAWER (Sliding Luxury Panel for Phone) */}
+      {isMobileFilterOpen && (
+        <div className="mobile-filter-drawer-overlay" onClick={() => setIsMobileFilterOpen(false)}>
+          <div className="mobile-filter-drawer" onClick={(e) => e.stopPropagation()}>
+            {/* Drawer Handle */}
+            <div className="drawer-handle-bar" />
+
+            {/* Drawer Header */}
+            <div className="drawer-header">
+              <div className="drawer-title-group">
+                <h3>{lang === 'ar' ? 'تصفية وترتيب' : 'Filtres & Tri'}</h3>
+                <span className="drawer-count-badge">
+                  {filteredProducts.length} {lang === 'ar' ? 'منتج' : 'articles'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {activeFilterCount > 0 && (
+                  <button type="button" className="drawer-reset-btn" onClick={resetAllFilters}>
+                    {lang === 'ar' ? 'إعادة ضبط' : 'Réinitialiser'}
+                  </button>
+                )}
+                <button 
+                  type="button" 
+                  className="drawer-close-btn" 
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  aria-label="Fermer"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Drawer Scrollable Body */}
+            <div className="drawer-body">
+              {/* 1. Category */}
+              <div className="drawer-section">
+                <label className="drawer-section-label">
+                  {lang === 'ar' ? 'القسم / الفئة' : 'Catégorie'}
+                </label>
+                <div className="drawer-chips-grid">
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${selectedCategory === 'all' && !onlyPromo ? 'active' : ''}`}
+                    onClick={() => { setSelectedCategory('all'); setOnlyPromo(false); }}
+                  >
+                    {lang === 'ar' ? 'جميع المنتجات' : 'Tous les produits'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${selectedCategory === 'Sneakers' ? 'active' : ''}`}
+                    onClick={() => { setSelectedCategory('Sneakers'); setOnlyPromo(false); }}
+                  >
+                    👟 {lang === 'ar' ? 'أحذية رياضية' : 'Baskets (Sneakers)'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${selectedCategory === 'Vêtements' ? 'active' : ''}`}
+                    onClick={() => { setSelectedCategory('Vêtements'); setOnlyPromo(false); }}
+                  >
+                    👕 {lang === 'ar' ? 'ملابس وستريت وير' : 'Vêtements & Ensembles'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip promo ${onlyPromo ? 'active' : ''}`}
+                    onClick={() => setOnlyPromo(!onlyPromo)}
+                  >
+                    🔥 {lang === 'ar' ? 'العروض والتخفيضات' : 'Promotions'}
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Brands Grid */}
+              <div className="drawer-section">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label className="drawer-section-label" style={{ margin: 0 }}>
+                    {lang === 'ar' ? 'الماركة' : 'Marque'}
+                  </label>
+                  {selectedBrands.length > 0 && (
+                    <button 
+                      type="button" 
+                      style={{ background: 'none', border: 'none', color: '#e60000', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                      onClick={() => setSelectedBrands([])}
+                    >
+                      {lang === 'ar' ? 'مسح الماركات' : 'Désélectionner tout'}
+                    </button>
+                  )}
+                </div>
+                <div className="drawer-brands-grid">
+                  {brandsList.map(brand => {
+                    const isSelected = selectedBrands.includes(brand);
+                    return (
+                      <button
+                        key={brand}
+                        type="button"
+                        className={`drawer-brand-btn ${isSelected ? 'selected' : ''}`}
+                        onClick={() => toggleBrandFilter(brand)}
+                      >
+                        <span>{brand}</span>
+                        <span className="brand-btn-check">{isSelected ? '✓' : '+'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. Pointures / Tailles */}
+              <div className="drawer-section">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label className="drawer-section-label" style={{ margin: 0 }}>
+                    {lang === 'ar' ? 'المقاس / القياس' : 'Pointure / Taille'}
+                  </label>
+                  {selectedSize && (
+                    <button 
+                      type="button" 
+                      style={{ background: 'none', border: 'none', color: '#e60000', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                      onClick={() => setSelectedSize('')}
+                    >
+                      {lang === 'ar' ? 'كل المقاسات' : 'Toutes'}
+                    </button>
+                  )}
+                </div>
+                <div className="drawer-sizes-group">
+                  <span className="drawer-sublabel">Pointures Baskets :</span>
+                  <div className="drawer-sizes-row">
+                    {['39', '40', '41', '42', '43', '44', '45'].map(sz => (
+                      <button
+                        key={sz}
+                        type="button"
+                        className={`drawer-size-pill ${selectedSize === sz ? 'active' : ''}`}
+                        onClick={() => setSelectedSize(selectedSize === sz ? '' : sz)}
+                      >
+                        {sz}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="drawer-sizes-group" style={{ marginTop: '10px' }}>
+                  <span className="drawer-sublabel">Tailles Vêtements :</span>
+                  <div className="drawer-sizes-row">
+                    {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(sz => (
+                      <button
+                        key={sz}
+                        type="button"
+                        className={`drawer-size-pill ${selectedSize === sz ? 'active' : ''}`}
+                        onClick={() => setSelectedSize(selectedSize === sz ? '' : sz)}
+                      >
+                        {sz}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Sort By */}
+              <div className="drawer-section">
+                <label className="drawer-section-label">
+                  {lang === 'ar' ? 'ترتيب حسب' : 'Trier par'}
+                </label>
+                <div className="drawer-chips-grid">
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${sortBy === 'new' ? 'active' : ''}`}
+                    onClick={() => setSortBy('new')}
+                  >
+                    ⚡ {t.sortNew}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${sortBy === 'low' ? 'active' : ''}`}
+                    onClick={() => setSortBy('low')}
+                  >
+                    ↓ {t.sortPriceLow}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${sortBy === 'high' ? 'active' : ''}`}
+                    onClick={() => setSortBy('high')}
+                  >
+                    ↑ {t.sortPriceHigh}
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-chip ${sortBy === 'name' ? 'active' : ''}`}
+                    onClick={() => setSortBy('name')}
+                  >
+                    {t.sortName}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Drawer Footer CTA */}
+            <div className="drawer-footer">
+              <button
+                type="button"
+                className="drawer-apply-btn"
+                onClick={() => {
+                  setIsMobileFilterOpen(false);
+                  scrollToSection('shop');
+                }}
+              >
+                {lang === 'ar'
+                  ? `عرض ${filteredProducts.length} منتج ←`
+                  : `Afficher les ${filteredProducts.length} articles →`}
+              </button>
+            </div>
           </div>
         </div>
       )}
